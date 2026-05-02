@@ -3,8 +3,10 @@ from src.load_data import load_posts, load_topic_assignments, load_trial_events
 from src.topic_modeling import aggregate_topic_prevalence, topic_prevalence_over_time, top_words_by_topic, representative_posts_by_topic, topic_shift_pre_post, topic_entropy_over_time
 from src.topic_leveling import topic_level_summary
 from src.plotting import topic_prevalence_area, topic_heatmap
+from src.ui_components import apply_light_theme
 
 st.set_page_config(page_title="Topic Modeling", layout="wide")
+apply_light_theme()
 st.title("Topic Modeling and Topic Leveling")
 posts = load_posts()
 topics = load_topic_assignments()

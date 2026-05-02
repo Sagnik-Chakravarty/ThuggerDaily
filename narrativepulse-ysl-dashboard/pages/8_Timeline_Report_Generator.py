@@ -1,8 +1,10 @@
 import streamlit as st
 from src.load_data import load_posts, load_trial_events
 from src.llm_reporting import list_ollama_models, generate_llm_report
+from src.ui_components import apply_light_theme
 
 st.set_page_config(page_title="Timeline Report Generator", layout="wide")
+apply_light_theme()
 st.title("Timeline Report Generator")
 st.caption("Uses local Ollama when available; otherwise returns a template report.")
 posts = load_posts()
@@ -11,7 +13,9 @@ entity = st.sidebar.selectbox("Entity", ["all"] + sorted(posts["entity"].dropna(
 platform = st.sidebar.selectbox("Platform", ["all"] + sorted(posts["platform"].dropna().unique()))
 report_type = st.sidebar.selectbox("Report type", ["executive summary", "timeline report", "sentiment shift explanation", "topic shift explanation", "legal-event reaction report", "ThuggerDaily influence brief", "entity comparison report", "platform comparison report", "uncertainty/limitations report"])
 models = list_ollama_models()
-model = st.sidebar.selectbox("Ollama model", models or ["llama3.1", "mistral", "qwen2.5", "phi3"])
+supported_models = ["llama3.1", "mistral", "qwen2.5", "phi3"]
+available_supported = [m for m in models if any(m.startswith(prefix) for prefix in supported_models)]
+model = st.sidebar.selectbox("Ollama model", available_supported or supported_models)
 max_examples = st.sidebar.slider("Max example posts", 0, 10, 3)
 df = posts.copy()
 if entity != "all":

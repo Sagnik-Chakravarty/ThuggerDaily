@@ -1,4 +1,7 @@
 data/raw/
+data/processed/*.csv
+data/processed/*.csv.gz
+data/processed/*.copytmp
 .env
 __pycache__/
 *.pyc

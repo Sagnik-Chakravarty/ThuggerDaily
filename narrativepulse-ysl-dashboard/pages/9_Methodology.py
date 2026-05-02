@@ -1,7 +1,9 @@
 import streamlit as st
 from src.config import CAUSAL_CAVEAT
+from src.ui_components import apply_light_theme
 
 st.set_page_config(page_title="Methodology", layout="wide")
+apply_light_theme()
 st.title("Methodology")
 st.info(CAUSAL_CAVEAT)
 st.markdown(

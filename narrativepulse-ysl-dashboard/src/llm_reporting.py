@@ -44,6 +44,12 @@ Write a concise professional report with uncertainty and limitations.
 """
 
 
+def dataframe_preview(obj, rows=8) -> str:
+    if isinstance(obj, pd.DataFrame):
+        return obj.head(rows).to_string(index=False)
+    return str(obj)
+
+
 def call_ollama(prompt, model="llama3.1"):
     response = requests.post(
         f"{OLLAMA_URL}/api/generate",
@@ -55,8 +61,8 @@ def call_ollama(prompt, model="llama3.1"):
 
 
 def generate_template_report(report_type, metrics: pd.DataFrame, events: pd.DataFrame) -> str:
-    metric_text = metrics.head(8).to_markdown(index=False) if hasattr(metrics, "to_markdown") else str(metrics)
-    event_text = events.head(6).to_markdown(index=False) if hasattr(events, "to_markdown") else str(events)
+    metric_text = dataframe_preview(metrics, 8)
+    event_text = dataframe_preview(events, 6)
     return (
         f"## {report_type.title()}\n\n"
         "This template report summarizes aggregate public discourse metrics. The visible pattern should be read as "

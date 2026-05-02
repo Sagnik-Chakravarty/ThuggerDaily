@@ -3,9 +3,10 @@ from src.config import APP_TITLE, CAUSAL_CAVEAT
 from src.load_data import load_posts, load_thuggerdaily_posts, load_trial_events
 from src.sentiment import aggregate_sentiment_timeseries
 from src.plotting import line_sentiment_over_time, line_volume_over_time, bar_records_by_platform, heatmap_platform_entity_sentiment
-from src.ui_components import render_sidebar_filters, apply_filters, render_kpi_cards, render_caveat_box
+from src.ui_components import apply_light_theme, render_sidebar_filters, apply_filters, render_kpi_cards, render_caveat_box, render_demo_mode_notice
 
 st.set_page_config(page_title="NarrativePulse", layout="wide", initial_sidebar_state="expanded")
+apply_light_theme()
 st.title(APP_TITLE)
 st.caption("Legal-media intelligence and public narrative analytics for event-linked discourse measurement.")
 
@@ -15,6 +16,7 @@ events = load_trial_events()
 filters = render_sidebar_filters(posts)
 filtered = apply_filters(posts, filters)
 
+render_demo_mode_notice(["posts_master.csv", "thuggerdaily_posts.csv", "trial_events.csv"])
 render_caveat_box(CAUSAL_CAVEAT)
 
 date_min = filtered["date"].min().date() if not filtered.empty else posts["date"].min().date()
@@ -23,7 +25,7 @@ render_kpi_cards(
     [
         ("Records", f"{len(filtered):,}", "Filtered records; full project analyzed 2M+ records."),
         ("Platforms", filtered["platform"].nunique(), "Distinct source platforms in current view."),
-        ("Date Range", f"{date_min} to {date_max}", "Coverage in current view."),
+        ("Date Range", f"{date_min:%b %Y} - {date_max:%b %Y}", "Coverage in current view."),
         ("Legal Events", len(events), "Major timeline markers."),
         ("Topics", filtered["topic_label"].nunique(), "Generalized topic groups."),
         ("ThuggerDaily Posts", f"{len(td):,}", "Exposure/treatment-style records."),

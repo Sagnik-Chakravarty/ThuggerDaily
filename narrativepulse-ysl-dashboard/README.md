@@ -1,84 +1,129 @@
-# NarrativePulse: Public Narrative Analytics Dashboard
+# NarrativePulse Dashboard
 
-## Overview
-NarrativePulse is a professional Streamlit portfolio app for public narrative analytics around the YSL RICO trial timeline. It frames the work as legal-media intelligence: cross-platform sentiment, topic prevalence, engagement, event-linked discourse shifts, and local LLM reporting.
+NarrativePulse is a deployable Streamlit dashboard for public narrative analytics around the YSL RICO trial. It measures cross-platform sentiment, engagement, discourse volume, topic prevalence, event-window shifts, and ThuggerDaily-aligned influence signals.
 
-## Why this project matters
-High-profile legal events unfold through fragmented public channels. This dashboard shows how to measure platform-level public reaction without claiming that social media definitively caused legal or public-opinion outcomes.
+The dashboard is designed as a professional legal-media intelligence product, not a celebrity gossip app. It uses careful observational language and avoids unsupported causal or legal claims.
 
-## Core research question
+## Main Research Question
+
 How did ThuggerDaily's X/Twitter posts temporally align with public sentiment, engagement, topic prevalence, and discourse volume around Young Thug, Gunna, and YFN Lucci across platforms?
 
-## App features
-- Executive overview with KPIs, platform/entity breakdowns, and timeline charts
-- Data coverage and missingness diagnostics
-- Multi-platform sentiment tracking with smoothing
-- ThuggerDaily influence signal analysis with pre/post windows and lag correlations
-- Topic modeling and three-level topic interpretation
-- Statistical inference page with tests, effect sizes, lag analysis, and regressions
-- Observational event study, DiD, and interrupted time-series page
-- Optional local Ollama report generation with template fallback
-- Methodology and privacy caveats
+## Core Features
 
-## Data sources
-The project supports X/Twitter, Reddit, YouTube, Instagram, Google Trends, Spotify, Billboard, newspapers, magazines, and local news. The dashboard uses processed, sampled, anonymized, or demo data by default.
+- Executive KPIs and cross-platform summary
+- Data source and coverage diagnostics
+- Multi-platform sentiment trends
+- ThuggerDaily influence-signal analysis
+- Topic modeling and topic-level interpretation
+- Statistical inference: pre/post tests, effect sizes, lag correlations, regression summaries
+- Causal-style event study: event windows, DiD, interrupted time series, attribution caveats
+- Local Ollama report generator with template fallback
+- Methodology and privacy documentation
 
-## Methods
-The broader project used Python, Playwright, Selenium-based Twitter scraping, R/Quarto analysis, APIs, NLTK/TextBlob sentiment, LSI/LDA-style topic modeling, Truncated SVD, t-SNE, UMASS coherence, top-word diagnostics, event timeline mapping, and DAG thinking.
+## Data Backend
 
-## Statistical inference
-The app includes descriptive statistics, missingness checks, pre/post testing, Welch t-tests, Mann-Whitney U tests, chi-square tests, two-proportion tests, Cohen's d, confidence intervals, topic distribution shift tests, lag correlations, and regression summaries.
+The app supports three data modes:
 
-## Observational causal inference caveat
-Event studies, DiD, and interrupted time series estimate temporal association and influence signals. They do not prove randomized causal effects. Results depend on assumptions about timing, omitted confounders, platform coverage, and parallel trends.
+1. **Neon/Postgres**: production deployment path
+2. **Local processed CSVs**: development mode
+3. **Generated demo data**: fallback mode
 
-## Local LLM reporting with Ollama
-Ollama is optional. The report generator sends only aggregate summaries and selected examples, not raw private datasets.
+For deployment, configure Streamlit secrets with:
+
+```toml
+NEON_DB = "postgresql://..."
+```
+
+or:
+
+```toml
+DATABASE_URL = "postgresql://..."
+```
+
+The app will show `Data backend: Neon Postgres` in the sidebar when connected.
+
+## Current Database Tables
+
+The production database expects:
+
+- `posts_master`
+- `thuggerdaily_posts`
+- `trial_events`
+- `topic_assignments`
+- `entity_timeseries`
+- `platform_summary`
+
+Upload/refresh them with:
 
 ```bash
-ollama serve
-ollama pull llama3.1
-ollama pull mistral
+python scripts/upload_processed_to_neon.py
 ```
 
-## Privacy and data limitations
-This app is designed for portfolio demonstration using processed, public, sampled, or anonymized data. Do not commit confidential client data, private legal records, raw scraped data containing sensitive user information, or API credentials.
+## Local Development
 
-## Repository structure
-```text
-narrativepulse-ysl-dashboard/
-├── app.py
-├── requirements.txt
-├── data/
-├── src/
-├── pages/
-├── assets/
-└── tests/
-```
-
-## Setup instructions
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-```
-
-## Running the Streamlit app
-```bash
 streamlit run app.py
 ```
 
-## Enabling Ollama
-Start Ollama locally and pull one or more supported models. The rest of the dashboard works without Ollama.
+## Streamlit Cloud Deployment
 
-## Screenshots placeholder
-Add screenshots to `assets/app_screenshot.png` after running the app locally.
+Use:
 
-## Future work
-- Replace demo data with processed CSV exports
-- Add richer topic model diagnostics and embedding maps
-- Add stronger event metadata and platform-specific missingness flags
-- Add model cards for sentiment and topic pipelines
+```text
+Main file path: narrativepulse-ysl-dashboard/app.py
+```
 
-## Resume/portfolio positioning
-This project demonstrates end-to-end analytics product work: public data collection, NLP, statistical inference, causal reasoning, dashboard engineering, and careful communication of uncertainty.
+Add the Neon URL in Streamlit secrets. Do not commit `.env`.
+
+More detailed instructions are in [DEPLOYMENT.md](DEPLOYMENT.md).
+
+## Rebuilding Processed Data
+
+The adapter reads source-specific cleaned files from `../Data/Cleaned Data/` and writes standardized CSVs to `data/processed/`:
+
+```bash
+python scripts/build_processed_data.py
+```
+
+Large processed CSVs are intentionally ignored by git because the deployed app reads from Neon.
+
+## Project Structure
+
+```text
+narrativepulse-ysl-dashboard/
+├── app.py
+├── pages/
+├── src/
+├── scripts/
+├── data/
+├── notebooks/
+├── reports/
+├── tests/
+├── assets/
+├── requirements.txt
+└── DEPLOYMENT.md
+```
+
+## Methods
+
+The project uses:
+
+- Python data engineering and schema standardization
+- TextBlob-style sentiment scoring
+- engagement normalization using likes, retweets/shares, comments, views, and analytics fields
+- seven generalized topic groups with three-level topic interpretation
+- event-window analysis around trial dates
+- exploratory lag correlations
+- observational causal-inference-style summaries
+- local LLM report generation through Ollama when available
+
+## Causal Caveat
+
+This app estimates temporal association, event-linked discourse shifts, and public narrative influence signals. It does not prove that ThuggerDaily caused legal outcomes, changed court decisions, or definitively caused public opinion changes.
+
+## Privacy
+
+This app is built for portfolio demonstration using processed public data. Do not commit credentials, private legal records, confidential client data, or sensitive raw scraped data.

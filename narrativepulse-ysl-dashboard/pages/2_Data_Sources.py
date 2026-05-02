@@ -1,9 +1,10 @@
 import streamlit as st
 from src.load_data import load_posts, load_platform_summary
 from src.plotting import bar_records_by_platform, missingness_heatmap
-from src.ui_components import render_caveat_box
+from src.ui_components import apply_light_theme, render_caveat_box
 
 st.set_page_config(page_title="Data Sources", layout="wide")
+apply_light_theme()
 st.title("Data Sources")
 render_caveat_box("Coverage reflects available public, processed, sampled, or demo records. API and scraping constraints can introduce platform bias.")
 

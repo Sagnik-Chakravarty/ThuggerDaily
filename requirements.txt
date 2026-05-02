@@ -7,12 +7,6 @@ statsmodels
 scikit-learn
 requests
 python-dateutil
-nltk
 textblob
-altair
-pytest
 openpyxl
-reportlab
-matplotlib
-pypdf
 psycopg[binary]

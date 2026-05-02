@@ -4,9 +4,10 @@ from src.load_data import load_posts, load_thuggerdaily_posts
 from src.statistics import pre_post_summary, lag_correlation
 from src.sentiment import aggregate_sentiment_timeseries
 from src.plotting import engagement_spike_plot, line_volume_over_time, line_sentiment_over_time, lag_correlation_plot
-from src.ui_components import render_caveat_box
+from src.ui_components import apply_light_theme, render_caveat_box
 
 st.set_page_config(page_title="ThuggerDaily Influence", layout="wide")
+apply_light_theme()
 st.title("ThuggerDaily Influence Signals")
 render_caveat_box("This module estimates temporal association around observed posts. It does not prove randomized causal effects.")
 

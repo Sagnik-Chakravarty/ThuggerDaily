@@ -1,0 +1,21 @@
+.env
+.env.local
+.DS_Store
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# Local raw and generated data should not be committed for deployment.
+narrativepulse-ysl-dashboard/data/raw/
+narrativepulse-ysl-dashboard/data/processed/*.csv
+narrativepulse-ysl-dashboard/data/processed/*.csv.gz
+narrativepulse-ysl-dashboard/data/processed/*.copytmp
+
+# Large/generated report artifacts are reproducible from scripts.
+narrativepulse-ysl-dashboard/reports/figures/
+narrativepulse-ysl-dashboard/reports/figures_png/
+*.aux
+*.out
+*.log
+*.toc
