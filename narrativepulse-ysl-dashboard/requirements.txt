@@ -1,0 +1,13 @@
+streamlit
+pandas
+numpy
+plotly
+scipy
+statsmodels
+scikit-learn
+requests
+python-dateutil
+nltk
+textblob
+altair
+pytest
