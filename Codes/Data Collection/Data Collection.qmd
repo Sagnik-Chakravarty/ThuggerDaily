@@ -1,0 +1,999 @@
+---
+title: "Twitter Young Thug"
+format: html
+editor: visual
+---
+
+## Google Trends
+
+```{r watning = FALSE, message = FALSE}
+library(gtrendsR)
+library(dplyr)
+library(sys)
+Sys.sleep(5)
+seach_keywords <- c('young thug', 'gunna', 'yfn lucci')
+search_trends <- gtrends(keyword = seach_keywords,
+                  geo = "US",
+                  time = "2020-01-01 2024-12-10",
+                  gprop = "web",
+                  low_search_volume = TRUE)
+```
+
+```{r}
+plot(search_trends)
+```
+
+```{r}
+library(openxlsx)
+
+wb <- createWorkbook()
+
+addWorksheet(wb, "interest over time")
+writeData(wb, "interest over time", 
+          search_trends$interest_over_time)
+
+addWorksheet(wb, "interest by region")
+writeData(wb, "interest by region", 
+          search_trends$interest_by_region)
+
+addWorksheet(wb, "interest by demographics")
+writeData(wb, "interest by demographics", 
+          search_trends$interest_by_dma)
+
+addWorksheet(wb, "interest by city")
+writeData(wb, "interest by city", 
+          search_trends$interest_by_city)
+
+saveWorkbook(wb, "/Users/sagnikchakravarty/Desktop/YoungThug/web_search_result.xlsx", overwrite = TRUE)
+```
+
+## New York Times
+
+```{r}
+library(nytimes)
+nytimes_key("WitNU2gMjn4URLzQTRgOxjVN0kWXZCAK")
+```
+
+```{r}
+keywords <- c("young thug", "gunna", "ysl rico", "ysl", "yfn lucci")
+start_date <- as.Date("2022-01-01")
+end_date <- as.Date("2024-12-08")
+```
+
+```{r}
+nyt_article_list <- list()
+for (keyword in keywords){
+  result <- ny_search(keyword,
+                      since = start_date,
+                      until = end_date,
+                      pages = 1,
+                      sort = 'newest')
+  nyt_article_list[[keyword]] <- result
+}
+```
+
+```{r}
+list_to_dateframe <- function(lst = nyt_article_list, keyword){
+  n <-length(lst[[keyword]])
+  ls <- lst[[keyword]]
+  publication_date <- c()
+  abstract <- c()
+  lead_paragraph <- c()
+  snippet <- c()
+  word_count <- c()
+  for(i in 1:n){
+      publication_date[i] <- c(ls[[i]]$pub_date)
+      abstract[i] <- c(ls[[i]]$abstract)
+      lead_paragraph[i] <- c(ls[[i]]$lead_paragraph)
+      snippet[i] <- c(ls[[i]]$snippet)
+      word_count[i] <- c(ls[[i]]$word_count)
+  }
+  res <- data.frame(publication_date, abstract, lead_paragraph, snippet, word_count)
+  return(res)
+}
+```
+
+```{r}
+young_thug_nyt <- list_to_dateframe(keyword = 'young thug')
+gunna_nyt <- list_to_dateframe(keyword = 'gunna')
+ysl_nyt <- list_to_dateframe(keyword = 'ysl')
+ysl_rico_nyt <- list_to_dateframe(keyword = 'ysl rico')
+yfn_lucci_nyt <- list_to_dateframe(keyword = 'yfn lucci')
+```
+
+```{r}
+wb2 <- createWorkbook()
+
+addWorksheet(wb2, "Young Thug")
+writeData(wb2, "Young Thug", 
+          young_thug_nyt)
+
+addWorksheet(wb2, "Gunna")
+writeData(wb2, "Gunna", 
+          gunna_nyt)
+
+addWorksheet(wb2, "YSL")
+writeData(wb2, "YSL", 
+          ysl_nyt)
+
+addWorksheet(wb2, "YSL RICO")
+writeData(wb2, "YSL RICO", 
+          ysl_rico_nyt)
+addWorksheet(wb2, "YFN Lucci")
+writeData(wb2, "YFN Lucci", 
+          yfn_lucci_nyt)
+
+saveWorkbook(wb2, "/Users/sagnikchakravarty/Desktop/YoungThug/nyt_article_result.xlsx", overwrite = TRUE)
+```
+
+## Reddit
+
+```{r}
+library(RedditExtractoR)
+reddit_keywords <- c("young thug", "gunna", "ysl rico", "ysl", "yfn lucci")
+subreddits <- c("YoungThug", 
+                'rap', 
+                "Gunna", 
+                "Atlantology")
+
+Reddit_Post_DF <- function(subreddit, 
+                           keyword = reddit_keywords) {
+  reddit_df <- NULL  # Initialize as NULL for flexibility
+  
+  for (keyword in keyword) {
+    reddit_posts <- as.data.frame(find_thread_urls(
+      keyword = keyword,
+      subreddit = subreddit,
+      period = "all"
+    ))
+    
+    # Check if reddit_posts is NA or empty
+    if (!is.null(reddit_posts) && nrow(reddit_posts) > 0) {
+      reddit_posts$keyword <- keyword
+      
+      if (is.null(reddit_df)) {
+        # Initialize reddit_df with the structure of the first non-empty reddit_posts
+        reddit_df <- reddit_posts
+      } else {
+        # Ensure column names match the main data frame
+        missing_cols <- setdiff(names(reddit_df), names(reddit_posts))
+        for (col in missing_cols) {
+          reddit_posts[[col]] <- NA  # Add missing columns with NA
+        }
+        
+        extra_cols <- setdiff(names(reddit_posts), names(reddit_df))
+        for (col in extra_cols) {
+          reddit_df[[col]] <- NA  # Add extra columns to main data frame
+        }
+        
+        # Bind the data frames
+        reddit_df <- rbind(reddit_df, reddit_posts)
+      }
+    } else {
+      message(paste("No results for keyword:", keyword))
+    }
+    
+    # Reset row names to numerical values
+    if (!is.null(reddit_df)) {
+      rownames(reddit_df) <- seq_len(nrow(reddit_df))
+    }
+  }
+  
+  # Ensure reddit_df is a data frame even if no results were found
+  if (is.null(reddit_df)) {
+    reddit_df <- data.frame()
+  }
+  
+  return(reddit_df)
+}
+```
+
+```{r}
+YoungThug <- Reddit_Post_DF(subreddit = subreddits[1]) 
+```
+
+```{r}
+rap <- Reddit_Post_DF(subreddit = subreddits[2])
+Gunna <- Reddit_Post_DF(subreddit = subreddits[3])
+Atlantology <- Reddit_Post_DF(subreddit = subreddits[4]) 
+```
+
+```{r}
+library(RSQLite)
+# Create a connection to the SQLite database
+db <- dbConnect(SQLite(), "/Users/sagnikchakravarty/Desktop/YoungThug/subredditdata.db")
+dbWriteTable(db, "YoungThug", YoungThug, overwrite = TRUE)
+dbWriteTable(db, "Gunna", Gunna, overwrite = TRUE)
+dbWriteTable(db, "rap", rap, overwrite = TRUE)
+dbWriteTable(db, "Atlantology", Atlantology, overwrite = TRUE)
+dbDisconnect(db)
+# Reconnect to check the tables
+db <- dbConnect(SQLite(), "/Users/sagnikchakravarty/Desktop/YoungThug/subredditdata.db")
+
+# List tables in the database
+dbListTables(db)
+
+# Disconnect after checking
+dbDisconnect(db)
+```
+
+## The Shade Room
+
+This site covers music industries reaction to the young thug case
+
+```{r}
+library(xml2)
+library(rvest)
+library(tidyverse)
+library(robotstxt)
+library(knitr)
+library(dplyr)
+library(kableExtra)
+```
+
+```{r}
+base_url <- "https://theshaderoom.com/tag/young-thug/page/1"
+paths_allowed(base_url)
+```
+
+```{r}
+# Read the HTML content of the URL
+url <- read_html(base_url)
+
+# Extract the nodes with the specified XPath
+nds <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "list-post-on-sm", " " ))]//*[contains(concat( " ", @class, " " ), concat( " ", "post-title", " " ))]//a')
+
+# Extract the text content
+names <- html_text(nds)
+
+# Display the first few names
+head(names)
+```
+
+```{r}
+# Extract the embedded links (href attributes)
+links <- html_attr(nds, "href")
+
+# Display the first few links
+head(links)
+```
+
+```{r}
+library(sys)
+shade_room_data <- data.frame()
+base_url <- "https://theshaderoom.com/tag/young-thug/page/"
+for (i in 1:9) {
+  Sys.sleep(2)
+  url <- paste(base_url, i, sep = "")
+  p_allow <- paths_allowed(url)
+  print(p_allow)
+  
+  if (p_allow) {
+    html_doc <- read_html(url)
+    nds <- html_nodes(html_doc, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "list-post-on-sm", " " ))]//*[contains(concat( " ", @class, " " ), concat( " ", "post-title", " " ))]//a')
+    headline <- html_text(nds)
+    embedded_url <- html_attr(nds, "href")
+    df <- data.frame(headline, embedded_url, stringsAsFactors = FALSE)
+    shade_room_data <- rbind(shade_room_data, df)
+  }
+}
+```
+
+```{r}
+url <- read_html(shade_room_data$embedded_url[1])
+# Extract nodes using XPath
+nd <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "content-spacious", " " ))]')
+
+# Extract the text content
+names <- html_text(nd)
+
+# View the extracted text
+print(names)
+```
+
+```{r}
+shade_room_article <- data.frame()
+
+for (i in 1:nrow(shade_room_data)) {
+  Sys.sleep(2)
+  link <- shade_room_data$embedded_url[i]
+  if (paths_allowed(link)) {
+    tryCatch({
+      url <- read_html(link)
+      date_node <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "has-next-icon", " " ))]//*[contains(concat( " ", @class, " " ), concat( " ", "post-date", " " ))]')
+      date <- ifelse(length(date_node) > 0, paste(html_text(date_node), collapse = "; "), NA)
+      article_node <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "content-spacious", " " ))]')
+      article <- ifelse(length(article_node) > 0, paste(html_text(article_node), collapse = " "), NA)
+      df <- data.frame(link = link, date = date, article = article, stringsAsFactors = FALSE)
+      shade_room_article <- rbind(shade_room_article, df)
+    }, error = function(e) {
+      message("Error processing link: ", link, "\n", e)
+    })
+  }
+}
+```
+
+```{r}
+shade_room <- shade_room_data %>% 
+  full_join(shade_room_article,
+          by = join_by(embedded_url == link))
+```
+
+```{r}
+write.csv(shade_room, "/Users/sagnikchakravarty/Desktop/YoungThug/shade_room.csv")
+```
+
+## Atlanta New Stations
+
+### WSB TV
+
+```{r}
+content_scrapper <- function(base_url, 
+                             number_of_pages, 
+                             headline_xpath, 
+                             article_xpath, 
+                             date_xpath, 
+                             sleep_time = 2) {
+  # Initialize data frames
+  content_data <- data.frame()
+  article_data <- data.frame()
+  
+  # Scrape headlines and embedded URLs
+  for (i in 1:number_of_pages) {
+    Sys.sleep(sleep_time)
+    url <- paste0(base_url, i)
+    
+    if (paths_allowed(url)) {
+      tryCatch({
+        # Parse the HTML page
+        html_doc <- read_html(url)
+        
+        # Extract headlines and embedded URLs
+        nds <- html_nodes(html_doc, xpath = headline_xpath)
+        headlines <- html_text(nds)
+        embedded_urls <- html_attr(nds, "href")
+        
+        # Append the results to the data frame
+        df <- data.frame(headline = headlines, 
+                         embedded_url = embedded_urls, 
+                         stringsAsFactors = FALSE)
+        content_data <- rbind(content_data, df)
+      }, error = function(e) {
+        message("Error processing page: ", url, "\n", e)
+      })
+    } else {
+      message("Access denied to: ", url)
+    }
+  }
+  
+  # Scrape article content and dates
+  for (i in 1:nrow(content_data)) {
+    Sys.sleep(sleep_time)
+    link <- content_data$embedded_url[i]
+    
+    # Check for NA before proceeding
+    if (!is.na(link) && paths_allowed(link)) {
+      tryCatch({
+        # Parse the HTML of the embedded link
+        article_doc <- read_html(link)
+        
+        # Extract the article content
+        article_node <- html_nodes(article_doc, xpath = article_xpath)
+        article <- ifelse(length(article_node) > 0, 
+                          paste(html_text(article_node), collapse = " "), NA)
+        
+        # Extract the publishing date
+        date_node <- html_nodes(article_doc, xpath = date_xpath)
+        date <- ifelse(length(date_node) > 0, 
+                       paste(html_text(date_node), collapse = "; "), NA)
+        
+        # Append the results to the article data frame
+        df <- data.frame(link = link, 
+                         date = date, 
+                         article = article, 
+                         stringsAsFactors = FALSE)
+        article_data <- rbind(article_data, df)
+      }, error = function(e) {
+        message("Error processing link: ", link, "\n", e)
+      })
+    } else {
+      if (is.na(link)) {
+        message("Skipping NA link at row: ", i)
+      } else {
+        message("Access denied to: ", link)
+      }
+    }
+    print(content_data)
+  }
+  
+  # Merge the headline and article data
+  combined_data <- content_data %>%
+    full_join(article_data, by = c("embedded_url" = "link"))
+  
+  return(combined_data)
+}
+
+```
+
+```{r}
+base_url <- 'https://www.wsbtv.com/search/?q=young+thug#gsc.tab=0&gsc.q=young%20thug&gsc.page='
+num_pages <- 9
+head_xpath <- '//*[contains(concat( " ", @class, " " ), concat( " ", "gs-title", " " ))]'
+article_xpath <- '//*[contains(concat( " ", @class, " " ), concat( " ", "main-custom", " " ))]'
+date_xpath <- '//*[contains(concat( " ", @class, " " ), concat( " ", "b-date", " " ))]'
+```
+
+```{r}
+WSB_dataframe <- content_scrapper(base_url = base_url,
+                                num_pages,
+                                headline_xpath = head_xpath,
+                                date_xpath = date_xpath,
+                                article_xpath = article_xpath)
+```
+
+```{r}
+library(rvest)
+paths_allowed('https://www.wsbtv.com/search/?q=young+thug#gsc.tab=0&gsc.q=young%20thug&gsc.page=1')
+
+# URL to scrape
+url <- read_html('https://www.wsbtv.com/search/?q=young+thug#gsc.tab=0&gsc.q=young%20thug&gsc.page=1')
+
+# Corrected XPath to select elements with class 'gs-title'
+nds <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "gs-title", " " ))]//*[contains(concat( " ", @class, " " ), concat( " ", "gs-title", " " ))]')
+
+# Extract the text content
+headlines <- html_text(nds)
+
+# Print the extracted headlines
+print(headlines)
+```
+
+## Magazine
+
+### Time
+
+```{r}
+time_magazine_data <-data.frame()
+base_url <- 'https://time.com/search/?q=young%20thug&page='
+for(i in 1:11){
+  Sys.sleep(3)
+  url <- paste(base_url, i, sep = '')
+  url <- read_html(url)
+  nds <- html_nodes(url, xpath='//*[contains(concat( " ", @class, " " ), concat( " ", "media-heading", " " ))]//a')
+  embedded_url <- html_attr(nds, "href")
+  headlines <- html_text(nds)
+  df <- data.frame(headline = headlines, link = embedded_url)
+  time_magazine_data <- rbind(time_magazine_data, df)
+}
+```
+
+```{r}
+time_magazine_art <- data.frame()
+
+for (i in 1:nrow(time_magazine_data)) {
+  Sys.sleep(3)
+  link <- time_magazine_data$link[i]
+  if (paths_allowed(link)) {
+    tryCatch({
+      url <- read_html(link)
+      date_node <- html_nodes(url, xpath = '//time')
+      date <- ifelse(length(date_node) > 0, paste(html_text(date_node), collapse = "; "), NA)
+      article_node <- html_nodes(url, '#article-body')
+      article <- ifelse(length(article_node) > 0, paste(html_text(article_node), collapse = " "), NA)
+      df <- data.frame(date = date, link = link, article = article, stringsAsFactors = FALSE)
+      time_magazine_art<- rbind(time_magazine_art, df)
+    }, error = function(e) {
+      message("Error processing link: ", link, "\n", e)
+    })
+  }
+}
+```
+
+```{r}
+beep(sound = 2)
+```
+
+```{r}
+time_mag <- time_magazine_art %>% 
+  full_join(time_magazine_data, 
+            by = 'link')
+
+anti_join(time_magazine_art, time_magazine_data, by = "link")
+```
+
+```{r}
+write.csv(time_mag, '/Users/sagnikchakravarty/Desktop/YoungThug/Time_Magazine.csv')
+```
+
+### People's Magazine
+
+```{r}
+library(rvest)
+library(dplyr)
+
+n <- 0
+peoples_mag_data <- list()
+
+while (n < 100) {
+  Sys.sleep(2)
+  base_url <- paste0('https://people.com/search?young%20thug=young+thug&offset=', n, '&q=young+thug')
+  url <- read_html(base_url)
+  article_nodes <- html_nodes(url, xpath = '//a[contains(@class, "mntl-card-list-card--extendable")]')
+  headlines <- html_nodes(article_nodes, xpath = './/*[contains(@class, "card__title-text")]') %>% 
+               html_text()
+  links <- html_attr(article_nodes, "href")
+  df <- data.frame(headlines, links, stringsAsFactors = FALSE)
+  peoples_mag_data[[length(peoples_mag_data) + 1]] <- df
+  n <- n + 24
+}
+peoples_mag_data <- do.call(rbind, peoples_mag_data)
+print(peoples_mag_data)
+```
+
+```{r}
+peoples_mag_art <- data.frame()
+for(i in 1:nrow(peoples_mag_data)){
+  Sys.sleep(1)
+  url <- read_html(peoples_mag_data$links[i])
+  date_nds <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "mntl-attribution__item-date", " " ))]')
+  article_nds <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "article-content", " " ))]')
+  df <- data.frame(links = peoples_mag_data$links[i],
+                                article = html_text(article_nds),
+                                pub_date = html_text(date_nds))
+  peoples_mag_art <- rbind(peoples_mag_art, df)
+}
+
+print(peoples_mag_art)
+```
+
+```{r}
+people_magazine <- peoples_mag_data %>% full_join(peoples_mag_art,
+                                                  join_by('links' == 'links'))
+print(people_magazine)
+```
+
+```{r}
+write.csv(people_magazine, '/Users/sagnikchakravarty/Desktop/YoungThug/people_magazine.csv')
+```
+
+### TMZ
+
+```{r}
+library(rvest)
+library(dplyr)
+
+tmz_data <- data.frame()
+
+for (i in 1:12) {
+  # Construct the URL
+  base_url <- paste0('https://www.tmz.com/people/young-thug/?page=', i)
+  
+  # Read the HTML content of the page
+  url <- read_html(base_url)
+  
+  # Select the <a> tags containing the links
+  article_nodes <- html_nodes(url, xpath = '//article[contains(@class, "gridler__card")]//a[contains(@class, "gridler__card-link")]')
+  
+  # Extract the headlines
+  headlines <- html_nodes(article_nodes, xpath = './/h3[contains(@class, "gridler__card-title")]') %>% 
+               html_text(trim = TRUE)
+  
+  # Extract the links
+  links <- html_attr(article_nodes, "href")
+  
+  # Extract the publication dates
+  dates <- html_nodes(article_nodes, xpath = './/span[contains(@class, "gridler__media-date")]') %>% 
+           html_text(trim = TRUE)
+  
+  # Ensure lengths match by finding the shorter length
+  min_length <- min(length(headlines), length(links), length(dates))
+  headlines <- headlines[1:min_length]
+  links <- links[1:min_length]
+  dates <- dates[1:min_length]
+  
+  # Combine into a data frame
+  df <- data.frame(headline = headlines, links = links, date = dates, stringsAsFactors = FALSE)
+  
+  # Append to the main data frame
+  tmz_data <- rbind(tmz_data, df)
+}
+
+# Print the resulting data frame
+print(tmz_data)
+
+
+
+```
+
+```{r}
+tmz_art <- data.frame()
+for(i in 1:nrow(tmz_data)){
+  Sys.sleep(1)
+  url <- read_html(tmz_data$links[i])
+  art_node <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "clearfix", " " ))]')
+  df <- data.frame(links = tmz_data$links[i],
+                   article = html_text(art_node))
+  tmz_art <- rbind(tmz_art, df)
+}
+```
+
+```{r}
+tmz <- tmz_data %>% full_join(tmz_art,
+                              join_by('links' == 'links'))
+```
+
+```{r}
+write.csv(people_magazine, '/Users/sagnikchakravarty/Desktop/YoungThug/tmz.csv')
+```
+
+### XXL
+
+```{r}
+library(rvest)
+library(dplyr)
+
+# Initialize an empty data frame
+xxl_data <- data.frame()
+
+# Number of pages to scrape
+num_pages <- 130
+
+# Create a progress bar
+progress_bar <- txtProgressBar(min = 0, max = num_pages, style = 3)
+
+for (i in 1:num_pages) {
+  Sys.sleep(1)  # Avoid hitting the server too frequently
+
+  # Update progress bar
+  setTxtProgressBar(progress_bar, i)
+
+  # Construct the URL
+  base_url <- paste0('https://www.xxlmag.com/search/?s=young%20thug&searchpage=', i)
+
+  # Read the HTML content of the page
+  url <- read_html(base_url)
+
+  # Extract the headline nodes
+  headline_nodes <- html_nodes(url, xpath = '//article[@class="teaser"]//a[@class="title"]')
+  headlines <- html_text(headline_nodes, trim = TRUE)
+
+  # Extract the links
+  links <- html_attr(headline_nodes, 'href')
+
+  # Extract publication dates using a refined XPath
+  date_nodes <- html_nodes(url, xpath = '//article[@class="teaser"]//div[@class="auth-date"]/time')
+  publication_dates <- html_text(date_nodes, trim = TRUE)
+
+  # Extract snippets
+  snippet_nodes <- html_nodes(url, xpath = '//article[@class="teaser"]//p[@class="excerpt"]')
+  snippets <- html_text(snippet_nodes, trim = TRUE)
+
+  # Ensure all vectors are of equal length
+  min_length <- min(length(headlines), length(links), length(publication_dates), length(snippets))
+  headlines <- headlines[1:min_length]
+  links <- links[1:min_length]
+  publication_dates <- publication_dates[1:min_length]
+  snippets <- snippets[1:min_length]
+
+  # Combine into a data frame
+  df <- data.frame(
+    headlines = headlines,
+    publication_date = publication_dates,
+    snippet = snippets,
+    links = links,
+    stringsAsFactors = FALSE
+  )
+
+  # Append to the main data frame
+  xxl_data <- rbind(xxl_data, df)
+}
+
+# Close the progress bar
+close(progress_bar)
+
+# View the resulting data frame
+print(xxl_data)
+
+# Print the resulting data frame
+print(xxl_data)
+```
+
+```{r}
+dat <- xxl_data
+```
+
+```{r}
+xxl_art <- data.frame()
+progress_bar <- txtProgressBar(min = 0, 
+                               max = nrow(xxl_data), style = 3)
+for(i in 1:nrow(xxl_data)){
+  Sys.sleep(1)
+  setTxtProgressBar(progress_bar, i)
+  url <- read_html(xxl_data$links[i])
+  article_nodes <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "content-wrap", " " ))]//*[contains(concat( " ", @class, " " ), concat( " ", "content", " " ))]')
+  date_node <- html_nodes(url, xpath = '//time')
+  df <- data.frame(link = xxl_data$links[i],
+                   article = html_text(article_nodes),
+                   pub_date = html_text(date_node))
+  xxl_art <- rbind(xxl_art, df)
+}
+close(progress_bar)
+```
+
+```{r}
+beep(sound =3)
+```
+
+```{r}
+xxl_data <- xxl_data %>% select(-publication_date)
+```
+
+```{r}
+xxl <- xxl_data %>% full_join(xxl_art,
+                              join_by('links' == 'link'))
+```
+
+```{r}
+write.csv(xxl, '/Users/sagnikchakravarty/Desktop/YoungThug/xxl.csv')
+```
+
+### GPB
+
+```{r}
+url <- read_html(gpb_data$links[1])
+nds <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "body-content--npr-news", " " ))]')
+print(html_text(nds))
+```
+
+```{r}
+library(rvest)
+
+gpb_data <- list()  # Use a list to store data initially for better efficiency
+
+for(i in 1:8) {
+  base_url <- paste('https://www.gpb.org/search?search=young%20thug&page=', i, sep = '')
+  url <- read_html(base_url)
+  
+  # Extract headlines
+  head_nodes <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "card-teaser__title-link", " " ))]')
+  
+  # Extract publication date
+  date_nodes <- html_nodes(url, xpath = '//time')
+  
+  # Extract snippets
+  snippet_nodes <- html_nodes(url, xpath = '//*[(@id = "main-content")]//p')
+  
+  # Extract text
+  headline <- html_text(head_nodes)
+  link <- html_attr(head_nodes, 'href')
+  publication_date <- html_text(date_nodes)
+  snippet <- html_text(snippet_nodes)
+  
+  # Prepend base URL to links if necessary
+  link <- ifelse(grepl('^/', link), paste0('https://www.gpb.org', link), link)
+  
+  # Determine the maximum length among all vectors
+  max_length <- max(length(headline), length(publication_date), length(snippet), length(link))
+  
+  # Pad shorter vectors with NAs
+  headline <- c(headline, rep(NA, max_length - length(headline)))
+  publication_date <- c(publication_date, rep(NA, max_length - length(publication_date)))
+  snippet <- c(snippet, rep(NA, max_length - length(snippet)))
+  link <- c(link, rep(NA, max_length - length(link)))
+  
+  # Create a data frame with the padded columns
+  df <- data.frame(
+    headlines = headline,
+    publication_date = publication_date,
+    snippets = snippet,
+    links = link,
+    stringsAsFactors = FALSE
+  )
+  
+  # Append to the list
+  gpb_data[[i]] <- df
+}
+
+# Combine all data frames from the list into one
+gpb_data <- do.call(rbind, gpb_data)
+
+# Print the resulting dataframe
+print(gpb_data)
+
+
+```
+
+```{r}
+library(httr)
+
+gpb_art <- data.frame()
+
+for (i in 1:nrow(gpb_data)) {
+  Sys.sleep(0.5)  # To avoid rate-limiting issues
+  
+  # Check if the URL is accessible
+  response <- tryCatch({
+    GET(gpb_data$links[i])
+  }, error = function(e) {
+    return(NULL)
+  })
+  
+  # If the URL is valid (status 200), proceed
+  if (!is.null(response) && status_code(response) == 200) {
+    url <- read_html(gpb_data$links[i])
+    
+    # Check if the XPath query returns any nodes
+    nds <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "body-content--npr-news", " " ))]')
+    
+    # If nodes are found, extract text; otherwise, return NA for the article
+    if(length(nds) > 0) {
+      article_text <- html_text(nds)
+    } else {
+      article_text <- NA  # If no article is found, set article_text to NA
+    }
+    
+    # Create a data frame and append it to the main data frame
+    df <- data.frame(
+      links = gpb_data$links[i],
+      article = article_text,
+      stringsAsFactors = FALSE
+    )
+    
+    gpb_art <- rbind(gpb_art, df)
+    
+  } else {
+    message("Skipping invalid or inaccessible URL: ", gpb_data$links[i])
+  }
+}
+
+# Print the resulting dataframe
+print(gpb_art)
+
+
+```
+
+```{r}
+gpb <- gpb_data %>% full_join(gpb_art,
+                              join_by('links' == 'links'))
+```
+
+```{r}
+write.csv(gpb, '/Users/sagnikchakravarty/Desktop/YoungThug/gpb.csv')
+```
+
+### Fox 5 atlanta
+
+```{r}
+url <- read_html('https://www.fox5atlanta.com/search?q=ysl%20rico&sort=date&page=1&from=2018-01-19')
+nds <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "title", " " ))]//a')
+print(html_attr(nds, 'href'))
+```
+
+```{r}
+library(rvest)
+
+fox5_data <- list()  # Use a list to store data initially for better efficiency
+
+for (i in 1:131) {
+  Sys.sleep(1)
+  # Construct the base URL with pagination
+  base_url <- paste0('https://www.fox5atlanta.com/search?q=ysl%20rico&sort=date&page=', i, '&from=2018-01-19')
+  
+  # URLencode to handle any special characters in the query
+  encoded_url <- URLencode(base_url)
+  
+  # Read the HTML content of the URL
+  url <- tryCatch({
+    read_html(encoded_url)
+  }, error = function(e) {
+    message("Error in fetching URL: ", encoded_url)
+    return(NULL)
+  })
+  
+  if (is.null(url)) {
+    next  # Skip to the next iteration if the URL is invalid
+  }
+  
+  # Extract headlines (update the XPath as per the correct structure)
+  head_nodes <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "title", " " ))]//a')
+  
+  # Extract publication date (update the XPath as per the correct structure)
+  date_nodes <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "time", " " ))]')
+  
+  # Extract snippets (update the XPath as per the correct structure)
+  snippet_nodes <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "dek", " " ))]')
+  
+  # Extract the text content from the nodes
+  headline <- html_text(head_nodes)
+  link <- html_attr(head_nodes, 'href')
+  publication_date <- html_text(date_nodes)
+  snippet <- html_text(snippet_nodes)
+  
+  # Prepend base URL to links if necessary (if relative URL)
+  link <- ifelse(grepl('^/', link), paste0('https://www.fox5atlanta.com', link), link)
+  
+  # Determine the maximum length among all vectors
+  max_length <- max(length(headline), length(publication_date), length(snippet), length(link))
+  
+  # Pad shorter vectors with NAs
+  headline <- c(headline, rep(NA, max_length - length(headline)))
+  publication_date <- c(publication_date, rep(NA, max_length - length(publication_date)))
+  snippet <- c(snippet, rep(NA, max_length - length(snippet)))
+  link <- c(link, rep(NA, max_length - length(link)))
+  
+  # Create a data frame with the padded columns
+  df <- data.frame(
+    headlines = headline,
+    publication_date = publication_date,
+    snippets = snippet,
+    links = link,
+    stringsAsFactors = FALSE
+  )
+  
+  # Append to the list
+  fox5_data[[i]] <- df
+}
+
+# Combine all data frames from the list into one
+fox5_data <- do.call(rbind, fox5_data)
+
+# Print the resulting dataframe
+print(fox5_data)
+
+```
+
+```{r}
+library(httr)
+
+fox5_art <- data.frame()
+
+for (i in 1:nrow(fox5_data)) {
+  Sys.sleep(0.5)  # To avoid rate-limiting issues
+  
+  # Check if the URL is accessible
+  response <- tryCatch({
+    GET(fox5_data$links[i])
+  }, error = function(e) {
+    return(NULL)
+  })
+  
+  # If the URL is valid (status 200), proceed
+  if (!is.null(response) && status_code(response) == 200) {
+    url <- read_html(fox5_data$links[i])
+    
+    # Check if the XPath query returns any nodes
+    nds <- html_nodes(url, xpath = '//*[contains(concat( " ", @class, " " ), concat( " ", "article-body", " " ))]')
+    
+    # If nodes are found, extract text; otherwise, return NA for the article
+    if(length(nds) > 0) {
+      article_text <- html_text(nds)
+    } else {
+      article_text <- NA  # If no article is found, set article_text to NA
+    }
+    
+    # Create a data frame and append it to the main data frame
+    df <- data.frame(
+      links = fox5_data$links[i],
+      article = article_text,
+      stringsAsFactors = FALSE
+    )
+    
+    fox5_art <- rbind(fox5_art, df)
+    
+  } else {
+    message("Skipping invalid or inaccessible URL: ", fox5_data$links[i])
+  }
+}
+
+# Print the resulting dataframe
+print(fox5_art)
+```
+
+```{r}
+atlanta_fox5 <- fox5_data %>% full_join(fox5_art,
+                                        join_by('links' == 'links'))
+```
+
+```{r}
+write.csv(atlanta_fox5, '/Users/sagnikchakravarty/Desktop/YoungThug/atlanta_fox5csv')
+```
