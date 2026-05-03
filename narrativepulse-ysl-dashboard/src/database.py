@@ -56,7 +56,12 @@ def psycopg_url(url: str) -> str:
 
 
 def read_table(table_name: str, parse_dates=None) -> pd.DataFrame:
-    import psycopg
+    try:
+        import psycopg
+    except Exception as exc:  # pragma: no cover
+        raise RuntimeError(
+            "Postgres driver is not available. Install `psycopg[binary]` or disable database mode."
+        ) from exc
 
     url = get_database_url()
     if not url:
@@ -70,7 +75,10 @@ def read_table(table_name: str, parse_dates=None) -> pd.DataFrame:
 
 
 def database_available() -> bool:
-    import psycopg
+    try:
+        import psycopg
+    except Exception:
+        return False
 
     url = get_database_url()
     if not url:
