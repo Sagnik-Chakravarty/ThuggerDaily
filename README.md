@@ -4,6 +4,12 @@ NarrativePulse is a Streamlit analytics dashboard and reporting workflow for mea
 
 This is a public narrative analytics and legal-media intelligence project. It does **not** claim to determine legal truth, guilt, innocence, or definitive causal responsibility. Event-study, lag, and attribution outputs should be read as observational influence signals.
 
+## Quick Links
+
+- Live dashboard: https://narrativepulse.streamlit.app/
+- GitHub repository: https://github.com/Sagnik-Chakravarty/ThuggerDaily
+- Report PDF (local path): `narrativepulse-ysl-dashboard/reports/narrativepulse_thuggerdaily_trial_report.pdf`
+
 ## Live App Entry Point
 
 The deployable app lives in:
@@ -48,11 +54,35 @@ The app loads data in this order:
 2. local processed CSVs if present
 3. generated demo data as a fallback
 
+## Results (At a Glance)
+
+These results are phrased conservatively and should be read as *observational narrative signals*, not definitive causal attribution.
+
+**KPIs**
+
+| KPI | Value |
+|---|---:|
+| Unified public-discourse records | 165,565 |
+| Platforms covered | 8 |
+| Entities tracked | 3 |
+| Topic groups (leveled) | 7 |
+| Coverage window (public corpus) | 2022-05-01 to 2024-12-29 |
+| ThuggerDaily posts (exposure stream) | 773 |
+| ThuggerDaily coverage window | 2023-01-01 to 2024-12-07 |
+| Key trial events table (dashboard default) | 7 |
+
+**Headline findings**
+
+- Public discourse shifts are most pronounced around major legal moments (attention/volume and engagement move more consistently than sentiment).
+- ThuggerDaily activity is frequently present in the same short post-event windows where cross-platform attention is moving; the most defensible interpretation is *amplification/framing during already-salient events*.
+- Full-period lag correlations are small, suggesting any influence is episodic and event-conditioned rather than a stable long-run predictor.
+- Topic shifts provide a clearer interpretation layer than sentiment alone (e.g., resolution moments tend to rebalance discourse toward music/fandom framing vs procedural/legal language).
+
 ## Local Setup
 
 ```bash
 cd narrativepulse-ysl-dashboard
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 streamlit run app.py
