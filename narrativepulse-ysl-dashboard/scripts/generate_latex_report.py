@@ -454,12 +454,18 @@ The ingestion script reads cleaned source exports from social media, video, news
 \subsection{{Sentiment}}
 Sentiment is scored as a lightweight public-language signal. The score is not treated as a psychological measure. Slang, sarcasm, legal vocabulary, fan language, and hip-hop discourse can all create misclassification. The report therefore emphasizes changes across time and groups rather than the absolute meaning of any individual score.
 
+In the baseline pipeline, each record with text is assigned a continuous polarity score using a lexicon-based sentiment function (TextBlob polarity) applied to cleaned text. Polarity is measured on a \([-1, 1]\) scale, where negative values indicate more negative language and positive values indicate more positive language. For interpretability, the report also uses a coarse label mapping: \textbf{{positive}} when polarity \(> 0.1\), \textbf{{negative}} when polarity \(< -0.1\), and \textbf{{neutral}} otherwise. No domain-specific hip-hop slang dictionary or legal lexicon was applied in this baseline; instead, robustness is obtained by focusing on aggregates, platform stratification, and event-window contrasts. This makes sentiment useful as a directional signal, while keeping uncertainty explicit.
+
 \subsection{{Engagement}}
 Engagement is defined as:
 \[
-\text{{Engagement Rate}} = \frac{{\text{{Likes}} + \text{{Retweets}} + \text{{Comments}}}}{{\text{{Analytics}}}} \times 100.
+\text{{Engagement Rate}}
+=
+\frac{{\text{{Likes}} + \text{{Retweets}} + \text{{Comments}}}}
+{{\text{{Exposure Denominator}}}}
+\times 100.
 \]
-When a denominator is missing, the dashboard preserves raw engagement counts. For non-X platforms, shares or available substitutes are used when retweets are unavailable. This enables broad comparison while preserving a warning: engagement fields are not semantically identical across platforms.
+The exposure denominator varies by platform and may refer to impressions, views, analytics, or another available exposure metric. When no denominator is available, the report preserves raw engagement counts. For this reason, cross-platform engagement-rate comparisons should be interpreted as approximate and platform-conditioned. When this report is paired with the Streamlit dashboard, denominator differences are explicitly flagged so users can see where rates are meaningful versus where only raw engagement is available.
 
 \subsection{{Topic Leveling}}
 The project uses seven generalized topics: Live Music in Atlanta, Slang, Trial-related Content, Legal System and Judicial Process, Music, Social Media Slang and Emojis, and Free Thug Support. These are mapped into broader interpretive levels: legal, music, fandom/support, slang/social media, media/news, and local Atlanta culture.
@@ -471,8 +477,8 @@ For each key date, the notebook estimates seven-day pre/post changes:
 \]
 Outcomes include public volume, sentiment, engagement, and topic shares. The event-window output is descriptive and observational.
 
-\subsection{{ThuggerDaily-Aligned Attribution Signal}}
-The attribution-style signal asks: within the post-event window, are public outcomes different on days when ThuggerDaily posted compared with days when it did not? Formally, for an outcome \(Y\):
+\subsection{{ThuggerDaily-Aligned Exposure Signal}}
+The exposure-alignment signal asks: within the post-event window, are public outcomes different on days when ThuggerDaily posted compared with days when it did not? Formally, for an outcome \(Y\):
 \[
 \text{{Exposure Lift}} = \bar{{Y}}_{{post, TD>0}} - \bar{{Y}}_{{post, TD=0}}.
 \]

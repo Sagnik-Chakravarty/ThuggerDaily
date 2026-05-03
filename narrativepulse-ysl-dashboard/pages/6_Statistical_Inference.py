@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from src.load_data import load_posts, load_trial_events, load_entity_timeseries
 from src.statistics import descriptive_summary, missingness_summary, duplicate_summary, pre_post_summary, mann_whitney_test, topic_distribution_shift_test, lag_correlation, regression_sentiment_ols, regression_positive_logit, regression_volume_poisson
-from src.ui_components import apply_light_theme, render_model_summary
+from src.ui_components import apply_light_theme, render_model_summary, render_engagement_denominator_flag
 
 st.set_page_config(page_title="Statistical Inference", layout="wide")
 apply_light_theme()
@@ -25,6 +25,8 @@ if platform != "all":
 event_date = events.loc[events["event_name"] == event, "date"].iloc[0]
 
 st.subheader("Descriptive Statistics")
+if outcome == "engagement_rate":
+    render_engagement_denominator_flag(df, context="This filtered scope")
 dupes = duplicate_summary(df)
 k1, k2, k3 = st.columns(3)
 k1.metric("Rows in Scope", f"{dupes['n_rows']:,}")

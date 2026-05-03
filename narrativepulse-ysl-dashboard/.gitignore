@@ -10,3 +10,25 @@ __pycache__/
 .venv/
 .env.local
 .pytest_cache/
+
+# Report build artifacts (keep only the final .tex and final .pdf)
+reports/tables/
+reports/_generated_*.tex
+reports/.cache/
+reports/.mplconfig/
+reports/*.aux
+reports/*.out
+reports/*.log
+reports/*.toc
+reports/*.lof
+reports/*.lot
+reports/*.fls
+reports/*.fdb_latexmk
+reports/*.synctex.gz
+reports/*.bbl
+reports/*.blg
+reports/*.run.xml
+reports/*.bcf
+
+# Repo-local TeX distribution used for compiling PDFs in a sandbox
+.tinytex/

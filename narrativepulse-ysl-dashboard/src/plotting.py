@@ -95,3 +95,34 @@ def lag_correlation_plot(df):
 def missingness_heatmap(df):
     miss = df.isna().mean().to_frame("missing_rate").T
     return px.imshow(miss, text_auto=".0%", color_continuous_scale="Reds", template=TEMPLATE, title="Missingness by Field")
+
+
+def engagement_denominator_coverage_plot(df):
+    """
+    Visual flag for cross-platform engagement-rate denominator differences.
+    Bars show which denominator type is available per platform.
+    """
+    if df is None or df.empty or "platform" not in df:
+        return _empty("No data available")
+    analytics = pd.to_numeric(df.get("analytics", pd.Series(index=df.index, dtype=float)), errors="coerce").fillna(0)
+    views = pd.to_numeric(df.get("views", pd.Series(index=df.index, dtype=float)), errors="coerce").fillna(0)
+    denom = pd.Series("none", index=df.index, dtype=object)
+    denom.loc[views > 0] = "views"
+    denom.loc[analytics > 0] = "analytics"
+    work = pd.DataFrame({"platform": df["platform"], "denominator_type": denom})
+    out = work.groupby(["platform", "denominator_type"]).size().reset_index(name="n_records")
+    total = out.groupby("platform")["n_records"].transform("sum").replace(0, pd.NA)
+    out["share"] = out["n_records"] / total
+    order = out.groupby("platform")["n_records"].sum().sort_values(ascending=False).index.tolist()
+    fig = px.bar(
+        out,
+        x="platform",
+        y="share",
+        color="denominator_type",
+        category_orders={"platform": order, "denominator_type": ["analytics", "views", "none"]},
+        template=TEMPLATE,
+        title="Engagement Denominator Coverage by Platform",
+    )
+    fig.update_yaxes(tickformat=".0%")
+    fig.update_layout(legend_title_text="Denominator used")
+    return fig

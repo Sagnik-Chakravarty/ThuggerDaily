@@ -15,10 +15,24 @@ narrativepulse-ysl-dashboard/data/processed/*.copytmp
 # Large/generated report artifacts are reproducible from scripts.
 narrativepulse-ysl-dashboard/reports/figures/
 narrativepulse-ysl-dashboard/reports/figures_png/
+narrativepulse-ysl-dashboard/reports/tables/
+narrativepulse-ysl-dashboard/reports/_generated_*.tex
+narrativepulse-ysl-dashboard/reports/.cache/
+narrativepulse-ysl-dashboard/reports/.mplconfig/
+narrativepulse-ysl-dashboard/.tinytex/
 *.aux
 *.out
 *.log
 *.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+*.run.xml
+*.bcf
 
 # Ignore large data files and common binary data formats
 # Top-level data folders

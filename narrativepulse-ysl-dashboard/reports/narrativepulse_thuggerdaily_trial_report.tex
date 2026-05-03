@@ -41,7 +41,7 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-This report examines whether ThuggerDaily's X/Twitter posting activity was temporally associated with measurable shifts in public discourse around the Young Thug / YSL RICO trial. The analysis uses a unified processed corpus of 165,565 public records from 8 platforms, including 773 ThuggerDaily records, spanning 2022-05-01 through 2024-12-29. The central object is not legal truth, guilt, innocence, or judicial causation. It is public narrative response: volume, sentiment, engagement, topic prevalence, and the timing of cross-platform attention. The empirical strategy combines event-window analysis, lag correlation, topic-shift analysis, and a ThuggerDaily-aligned attribution signal that compares post-event public outcomes on days with and without observed ThuggerDaily exposure. Results support the presence of event-linked discourse shifts and platform-level attention patterns, but they do not prove randomized causal effects. The most defensible interpretation is that ThuggerDaily supplied a visible, recurring amplification channel whose activity sometimes coincided with downstream movement in public attention and sentiment, especially around high-salience legal moments.
+This report examines whether ThuggerDaily's X/Twitter posting activity was temporally associated with measurable shifts in public discourse around the Young Thug / YSL RICO trial. The analysis uses a unified processed corpus of 165,565 public records from 8 platforms, including 773 ThuggerDaily records, spanning 2022-05-01 through 2024-12-29. The central object is not legal truth, guilt, innocence, or judicial causation. It is public narrative response: volume, sentiment, engagement, topic prevalence, and the timing of cross-platform attention. The empirical strategy combines event-window analysis, lag correlation, topic-shift analysis, and a ThuggerDaily-aligned exposure signal that compares post-event public outcomes on days with and without observed ThuggerDaily activity. Results support the presence of event-linked discourse shifts and platform-level attention patterns, but they do not prove randomized causal effects. The most defensible interpretation is that ThuggerDaily supplied a visible, recurring amplification channel whose activity sometimes coincided with downstream movement in public attention and sentiment, especially around high-salience legal moments.
 \end{abstract}
 
 \newpage
@@ -67,9 +67,9 @@ NarrativePulse was built to convert a broad public-data project into a professio
 
 The processed dashboard corpus contains \textbf{165,565} records, \textbf{773} of which are ThuggerDaily posts. Entity coverage is distributed across Young Thug (124,733 records), Gunna (38,068 records), and YFN Lucci (2,764 records). The largest source in the unified corpus is YouTube, followed by X/Twitter and media sources. This platform imbalance matters: YouTube comments and video statistics dominate the count distribution, while ThuggerDaily itself is concentrated on X/Twitter.
 
-The report's core finding is careful but meaningful: public discourse did shift around major trial dates, and ThuggerDaily activity often appeared near the same windows. However, the strongest valid claim is an \emph{influence signal}, not proof of causal responsibility. Around the Young Thug plea and release event on October 31, 2024, the seven-day event window showed a change in observed public attention and sentiment, while ThuggerDaily posted in the same post-event period. Around procedural shocks such as Judge Ural Glanville's recusal, public discourse also moved, but the amount plausibly attributable to ThuggerDaily depends strongly on platform coverage and denominator assumptions.
+The report's core finding is careful but meaningful: public discourse did shift around major trial dates, and ThuggerDaily activity often appeared near the same windows. However, the strongest valid claim is an \emph{public narrative influence signal}, not proof of causal responsibility. Around the Young Thug plea and release event on October 31, 2024, the seven-day event window showed a change in observed public attention and sentiment, while ThuggerDaily posted in the same post-event period. Around procedural shocks such as Judge Ural Glanville's recusal, public discourse also moved, but the magnitude of movement that is directionally aligned with ThuggerDaily exposure days depends strongly on platform coverage and denominator assumptions.
 
-This distinction is essential. Trial outcomes are produced by legal institutions, filings, courtroom decisions, counsel strategy, plea negotiations, and judicial process. Social media can shape public narrative, amplify interpretations, and change what audiences notice, but this dataset cannot identify a randomized causal pathway from tweet to court outcome. The phrase ``affected the trial'' is therefore interpreted here as: \emph{affected the public narrative around the trial, and potentially the public-facing information environment in which the trial was discussed.}
+This distinction is essential. Trial outcomes are produced by legal institutions, filings, courtroom decisions, counsel strategy, plea negotiations, and judicial process. Social media can shape public narrative, amplify interpretations, and change what audiences notice, but this dataset cannot identify a randomized causal pathway from tweets to court outcomes. The phrase ``affected the trial'' is therefore interpreted here as: \emph{affected the public narrative around the trial, and potentially the public-facing information environment in which the trial was discussed.}
 
 \section{Research Question and Product Framing}
 \subsection{Primary Question}
@@ -94,7 +94,7 @@ The real processed corpus spans 2022-05-01 through 2024-12-29. It includes 8 pla
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.98\linewidth]{figures_png/fig01_records_by_platform_entity.png}
-\caption{Cross-platform record coverage by entity. YouTube dominates the unified record count, which means raw volume should be interpreted alongside platform-specific views.}
+\caption{Cross-platform record coverage by entity. YouTube dominates the unified record count, which means raw volume should be interpreted alongside platform-specific views. Takeaway: platform composition affects interpretation because YouTube dominates volume while X/Twitter is central to the ThuggerDaily exposure mechanism.}
 \label{fig:coverage}
 \end{figure}
 
@@ -129,7 +129,7 @@ Billboard & Young Thug & 23.000 & 0.000 & 1,504.000 \\
 
 \newpage
 \section{Trial Timeline and External Validation}
-The event table was built from the local \texttt{Young Thug Time Line.rtf} file and cross-checked against public reporting. The indictment and early bond events are consistent with public timelines such as Hip Hop History's YSL trial chronology.\footnote{Hip Hop History, ``A Timeline of Young Thug and YSL's Atlanta RICO Trial,'' \url{https://history.hiphop/young-thug-trial-timeline/}.} The November 9, 2023 lyrics ruling is supported by Pitchfork reporting.\footnote{Pitchfork, ``Young Thug's Lyrics Can be Entered as Evidence in YSL RICO Trial, Judge Rules,'' \url{https://pitchfork.com/news/young-thug-lyrics-can-be-entered-as-evidence-in-ysl-rico-trial-judge-rules/}.} Opening statements on November 27, 2023 are documented by The FADER.\footnote{The FADER, ``Prosecutor quotes The Jungle Book, reads Young Thug lyrics in YSL trial opening statement,'' \url{https://www.thefader.com/2023/11/27/prosecutor-quotes-the-jungle-book-reads-young-thug-lyrics-in-ysl-trial-opening-statement}.} Judge Glanville's July 15, 2024 recusal is reported by the Los Angeles Times.\footnote{Los Angeles Times, ``Judge in Young Thug RICO case recused as YSL trial in Atlanta goes on hold indefinitely,'' \url{https://www.latimes.com/entertainment-arts/music/story/2024-07-15/ysl-trial-young-thug-judge-recused-ural-glanville-rico}.} Young Thug's October 31, 2024 plea is documented by NPR.\footnote{NPR, ``Young Thug pleads guilty in YSL trial, will serve probation,'' \url{https://www.npr.org/2024/10/31/nx-s1-5174207/young-thug-guilty-plea-ysl-trial}.} The December 3, 2024 end of the trial for remaining defendants is reported by the Los Angeles Times.\footnote{Los Angeles Times, ``YSL RICO trial ends,'' \url{https://www.latimes.com/entertainment-arts/music/story/2024-12-03/ysl-rico-trial-ends-defendants-not-guilty-young-thug}.}
+The event table was built from the local \texttt{Young Thug Time Line.rtf} file and cross-checked against public reporting. Indictment and early bond events are consistent with public trial timelines (e.g., Hip Hop History \cite{hiphophistory}). The November 9, 2023 lyrics ruling is supported by Pitchfork reporting \cite{pitchforklyrics}. Opening statements on November 27, 2023 are documented by The FADER \cite{faderopen}. Judge Glanville's July 15, 2024 recusal and the December 3, 2024 close of proceedings for remaining defendants are reported by the Los Angeles Times \cite{latimesrecusal,latimesend}. Young Thug's October 31, 2024 plea/release is documented by NPR \cite{nprplea}.
 
 
 \begin{table}[H]
@@ -172,12 +172,19 @@ The ingestion script reads cleaned source exports from social media, video, news
 \subsection{Sentiment}
 Sentiment is scored as a lightweight public-language signal. The score is not treated as a psychological measure. Slang, sarcasm, legal vocabulary, fan language, and hip-hop discourse can all create misclassification. The report therefore emphasizes changes across time and groups rather than the absolute meaning of any individual score.
 
+In the baseline pipeline, each record with text is assigned a continuous polarity score using a lexicon-based sentiment function (TextBlob polarity) applied to cleaned text. Polarity is measured on a \([-1, 1]\) scale, where negative values indicate more negative language and positive values indicate more positive language. For interpretability, the report also uses a coarse label mapping: \textbf{positive} when polarity \(> 0.1\), \textbf{negative} when polarity \(< -0.1\), and \textbf{neutral} otherwise. No domain-specific hip-hop slang dictionary or legal lexicon was applied in this baseline; instead, robustness is obtained by focusing on aggregates, platform stratification, and event-window contrasts. This makes sentiment useful as a directional signal, while keeping uncertainty explicit.
+
 \subsection{Engagement}
 Engagement is defined as:
 \[
-\text{Engagement Rate} = \frac{\text{Likes} + \text{Retweets} + \text{Comments}}{\text{Analytics}} \times 100.
+\text{Engagement Rate}
+=
+\frac{\text{Likes} + \text{Retweets} + \text{Comments}}
+{\text{Exposure Denominator}}
+\times 100.
 \]
-When a denominator is missing, the dashboard preserves raw engagement counts. For non-X platforms, shares or available substitutes are used when retweets are unavailable. This enables broad comparison while preserving a warning: engagement fields are not semantically identical across platforms.
+The exposure denominator varies by platform and may refer to impressions, views, analytics, or another available exposure metric. When no denominator is available, the report preserves raw engagement counts. For this reason, cross-platform engagement-rate comparisons should be interpreted as approximate and platform-conditioned.
+When this report is paired with the Streamlit dashboard, denominator differences are explicitly flagged: the dashboard surfaces which platforms have usable exposure denominators and which views rely on raw engagement counts.
 
 \subsection{Topic Leveling}
 The project uses seven generalized topics: Live Music in Atlanta, Slang, Trial-related Content, Legal System and Judicial Process, Music, Social Media Slang and Emojis, and Free Thug Support. These are mapped into broader interpretive levels: legal, music, fandom/support, slang/social media, media/news, and local Atlanta culture.
@@ -189,8 +196,8 @@ For each key date, the notebook estimates seven-day pre/post changes:
 \]
 Outcomes include public volume, sentiment, engagement, and topic shares. The event-window output is descriptive and observational.
 
-\subsection{ThuggerDaily-Aligned Attribution Signal}
-The attribution-style signal asks: within the post-event window, are public outcomes different on days when ThuggerDaily posted compared with days when it did not? Formally, for an outcome \(Y\):
+\subsection{ThuggerDaily-Aligned Exposure Signal}
+The exposure-alignment signal asks: within the post-event window, are public outcomes different on days when ThuggerDaily posted compared with days when it did not? Formally, for an outcome \(Y\):
 \[
 \text{Exposure Lift} = \bar{Y}_{post, TD>0} - \bar{Y}_{post, TD=0}.
 \]
@@ -198,7 +205,7 @@ The aligned share compares this lift to the observed event-window shift:
 \[
 \text{Aligned Share} = \frac{\text{Exposure Lift}}{\Delta_y}.
 \]
-This quantity is not causal responsibility. It is a timing-based influence signal. It is best read as: ``how much of the observed movement is directionally aligned with ThuggerDaily exposure days?''
+This quantity is not causal responsibility. It is a timing-based public-discourse association signal. It is best read as: ``how much of the observed movement is directionally aligned with ThuggerDaily exposure days?''
 
 \newpage
 \section{Public Discourse Volume Over Time}
@@ -244,24 +251,49 @@ The event-window analysis compares seven days before and seven days after each k
 
 \begin{table}[H]
 \centering
-\caption{Young Thug event-window summary with ThuggerDaily post-window exposure.}
+\caption{Young Thug event-window summary (outcomes) with seven-day pre/post windows.}
 \label{tab:young_event_summary}
 \scriptsize
-\setlength{\tabcolsep}{3pt}
+\setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.15}
 \begin{adjustbox}{max width=\linewidth}
-\begin{tabular}{p{0.18\linewidth}p{0.18\linewidth}p{0.18\linewidth}p{0.18\linewidth}p{0.18\linewidth}p{0.18\linewidth}p{0.18\linewidth}p{0.18\linewidth}}
+\begin{tabular}{p{0.12\linewidth}p{0.40\linewidth}p{0.12\linewidth}p{0.12\linewidth}p{0.12\linewidth}p{0.12\linewidth}}
 \toprule
-event date & event name & pre records & post records & volume change & sentiment change & td post posts & td post engagement \\
+event date & event name & pre records & post records & volume change & sentiment change \\
 \midrule
-2022-05-09 & YSL indictment and Young Thug arrest & 81.000 & 3,579.000 & 3,498.000 & -0.073 & 0.000 & 0.000 \\
-2022-12-14 & Gunna released after Alford plea & 63.000 & 1,728.000 & 1,665.000 & -0.062 & 0.000 & 0.000 \\
-2023-11-09 & Lyrics allowed as evidence & 849.000 & 881.000 & 32.000 & -0.133 & 4.000 & 1,809.000 \\
-2023-11-27 & Opening statements begin & 149.000 & 4,567.000 & 4,418.000 & -0.014 & 8.000 & 6,291.000 \\
-2024-06-10 & Secret meeting dispute and Brian Steel contempt episode & 987.000 & 3,875.000 & 2,888.000 & -0.069 & 25.000 & 227,268.000 \\
-2024-07-15 & Judge Ural Glanville recused & 421.000 & 931.000 & 510.000 & 0.057 & 12.000 & 61,338.000 \\
-2024-10-31 & Young Thug pleads guilty and is released on probation terms & 1,903.000 & 5,799.000 & 3,896.000 & 0.051 & 27.000 & 1,005,245.000 \\
-2024-12-03 & YSL trial ends for remaining defendants & 456.000 & 517.000 & 61.000 & 0.045 & 25.000 & 83,522.000 \\
+2022-05-09 & YSL indictment and Young Thug arrest & 81.000 & 3,579.000 & 3,498.000 & -0.073 \\
+2022-12-14 & Gunna released after Alford plea & 63.000 & 1,728.000 & 1,665.000 & -0.062 \\
+2023-11-09 & Lyrics allowed as evidence & 849.000 & 881.000 & 32.000 & -0.133 \\
+2023-11-27 & Opening statements begin & 149.000 & 4,567.000 & 4,418.000 & -0.014 \\
+2024-06-10 & Secret meeting dispute and Brian Steel contempt episode & 987.000 & 3,875.000 & 2,888.000 & -0.069 \\
+2024-07-15 & Judge Ural Glanville recused & 421.000 & 931.000 & 510.000 & 0.057 \\
+2024-10-31 & Young Thug pleads guilty and is released on probation terms & 1,903.000 & 5,799.000 & 3,896.000 & 0.051 \\
+2024-12-03 & YSL trial ends for remaining defendants & 456.000 & 517.000 & 61.000 & 0.045 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Young Thug event-window summary (ThuggerDaily exposure within the post window).}
+\label{tab:young_event_exposure}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{p{0.12\linewidth}p{0.52\linewidth}p{0.18\linewidth}p{0.18\linewidth}}
+\toprule
+event date & event name & td post posts & td post engagement \\
+\midrule
+2022-05-09 & YSL indictment and Young Thug arrest & 0.000 & 0.000 \\
+2022-12-14 & Gunna released after Alford plea & 0.000 & 0.000 \\
+2023-11-09 & Lyrics allowed as evidence & 4.000 & 1,809.000 \\
+2023-11-27 & Opening statements begin & 8.000 & 6,291.000 \\
+2024-06-10 & Secret meeting dispute and Brian Steel contempt episode & 25.000 & 227,268.000 \\
+2024-07-15 & Judge Ural Glanville recused & 12.000 & 61,338.000 \\
+2024-10-31 & Young Thug pleads guilty and is released on probation terms & 27.000 & 1,005,245.000 \\
+2024-12-03 & YSL trial ends for remaining defendants & 25.000 & 83,522.000 \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}
@@ -285,13 +317,13 @@ The event-window results show that public discourse shifts are not uniform. Some
 \end{figure}
 
 \newpage
-\section{ThuggerDaily-Aligned Attribution}
-The attribution estimate is intentionally conservative. It does not say that ThuggerDaily ``caused'' a certain percent of the public shift. It says that the observed post-event shift can be compared with public outcomes on days where ThuggerDaily posted. If those days show higher public volume, stronger engagement, or different sentiment than non-exposure days, the report labels the result an aligned influence signal.
+\section{ThuggerDaily-Aligned Exposure Signal}
+The exposure-alignment estimate is intentionally conservative. It does not say that ThuggerDaily ``caused'' a certain percent of the public shift. It says that the observed post-event shift can be compared with public outcomes on days where ThuggerDaily posted. If those days show higher public volume, stronger engagement, or different sentiment than non-exposure days, the report labels the result an aligned exposure signal.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.98\linewidth]{figures_png/fig09_attribution_share.png}
-\caption{ThuggerDaily-aligned share of sentiment shift for Young Thug event windows. Values are capped for display because small denominators can inflate ratios.}
+\caption{ThuggerDaily-aligned share of sentiment shift for Young Thug event windows. Values are capped for display because small denominators can inflate ratios. Takeaway: these values should be read as exposure-alignment signals, not causal shares, because small denominators and overlapping media shocks can inflate apparent alignment.}
 \label{fig:attr}
 \end{figure}
 
@@ -326,9 +358,11 @@ lag days & corr td posts public volume & corr td engagement public volume & corr
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.88\linewidth]{figures_png/fig07_lag_correlations.png}
-\caption{Exploratory lag correlations between ThuggerDaily posting/engagement and downstream public metrics.}
+\caption{Exploratory lag correlations between ThuggerDaily posting/engagement and downstream public metrics. Takeaway: the near-zero lag correlations support an event-window interpretation rather than a stable long-run predictive relationship.}
 \label{fig:lag}
 \end{figure}
+
+The weak global lag correlations suggest that ThuggerDaily activity does not operate as a stable long-run daily predictor of public outcomes across the full 2022--2024 period. If an influence signal is present, it is more plausibly episodic and event-conditioned, appearing around high-salience legal windows rather than as a persistent time-series relationship.
 
 The lag analysis should be interpreted as a screening tool. A high lag correlation can motivate closer qualitative review of specific posts and downstream threads. It cannot isolate ThuggerDaily from other contemporaneous sources unless a stronger control strategy is added.
 
@@ -420,6 +454,8 @@ Newspapers, local news, and magazines have fewer records but high framing value.
 \subsection{Music Signals as Competing Attention Shocks}
 Spotify and Billboard are not comment platforms, but they capture attention shifts tied to releases and chart movement. Those signals matter because they change the mix of public conversation from legal procedure toward career narrative and identity.
 
+Empirically, this creates a familiar interpretive problem in event windows: a trial hearing can increase legal-topic volume at the same time that a release, feature, chart movement, or music-media cycle increases music-topic volume. In the immediate aftermath of high-salience legal moments, the public narrative can therefore \emph{recompose} rather than move in a single direction. One portion of the ecosystem reacts to courtroom information (motions, plea terms, judge behavior, legitimacy), while another portion pivots toward career trajectory (``what happens to the music?'', ``what does this mean for the artist?'', ``who is loyal?''). This is why the report treats music sources as \textbf{competing attention shocks} and why topic shifts are read as mixture changes: legal-topic increases can coexist with a short-run rise in music attention that partially dilutes purely legal framing even when total volume spikes.
+
 \section{Platform Interpretation}
 The platform composition affects every result. YouTube dominates raw records because video comments and video metadata are dense. X/Twitter is central to the ThuggerDaily exposure mechanism but is not the largest total record source. Magazines and newspapers provide fewer records but often contain higher-density narrative framing. Spotify and Billboard are not public-opinion platforms, but they provide music-attention signals around album releases and chart movement.
 
@@ -427,6 +463,8 @@ This multi-platform structure is a strength because it prevents the report from 
 
 \section{What Can Be Said About ``Affecting the Trial''}
 The phrase ``affected the trial'' needs a disciplined interpretation. Based on this dataset, the correct claim is not that ThuggerDaily altered a judge's ruling, changed a plea negotiation, or caused legal outcomes. The defensible claim is that ThuggerDaily appears to have affected the \emph{public narrative environment around the trial} by posting near key legal events and potentially amplifying selected frames.
+
+This report should not be used to claim that ThuggerDaily affected judicial decision-making, plea negotiations, witness behavior, or legal outcomes. The evidence supports a narrower public-discourse claim: ThuggerDaily was a visible amplification channel whose activity often coincided with measurable changes in public attention, sentiment, engagement, and topic composition around key legal events.
 
 Three mechanisms are plausible:
 \begin{enumerate}[leftmargin=*]
@@ -445,7 +483,7 @@ These findings are stated at a level of certainty supported by the data and obse
 \item ThuggerDaily is a measurable exposure stream (773 posts in the processed ThuggerDaily dataset) that is frequently active in the same short windows where public attention moves.
 \item The strongest evidence of association appears as short-run, event-conditioned movement (same-day to 7-day windows), not as stable long-run predictive power at daily resolution.
 \item Topic shifts provide the clearest interpretation layer: during resolution moments (e.g., the October 2024 plea/release), the conversation partially rebalances from procedural/legal language toward music identity and fandom framing.
-\item None of the analyses identify randomized causal effects or legal causation; the correct language is temporal association and influence signal, not courtroom outcome attribution.
+\item None of the analyses identify randomized causal effects or legal causation; the correct language is temporal association and public narrative influence signal, not legal-causal responsibility.
 \end{enumerate}
 
 \section{Operational Implications}
@@ -493,9 +531,9 @@ Sentiment models can misread slang, sarcasm, legal terms, hip-hop discourse, and
 Engagement-rate denominators are inconsistent across sources. The dashboard uses analytics, impressions, or views where available and falls back to raw engagement where denominators are missing. This makes cross-platform engagement comparisons approximate.
 
 \section{Conclusion}
-The NarrativePulse analysis supports a nuanced conclusion. ThuggerDaily was not merely background noise: it was a measurable exposure stream with hundreds of posts in the trial-period corpus, and its activity often coincided with major legal events. Public discourse around the YSL RICO trial shifted in volume, sentiment, engagement, and topic composition around key dates. The account's post-window activity can be used to estimate aligned influence signals, especially when comparing public outcomes on exposure versus non-exposure days.
+The NarrativePulse analysis supports a nuanced conclusion: ThuggerDaily was a measurable public-narrative exposure stream during the YSL RICO trial, but the evidence does not support claims of legal causation. Public discourse shifted in volume, sentiment, engagement, and topic composition around major trial events, and ThuggerDaily activity frequently appeared in the same short-run windows. The strongest signal appears around high-salience legal moments, especially the October 31, 2024 plea/release window, where public attention rose sharply and ThuggerDaily showed substantial post-event activity and engagement.
 
-At the same time, the analysis does not prove that ThuggerDaily caused legal outcomes or singularly changed public opinion. The more rigorous conclusion is that ThuggerDaily likely contributed to the public narrative system surrounding the trial by amplifying attention, selecting frames, and concentrating fan/support discourse around Young Thug. In a legal-media intelligence setting, that is already a meaningful result: public legitimacy, reputational dynamics, and narrative momentum are not the same as courtroom facts, but they are measurable features of high-profile legal events.
+The appropriate interpretation is therefore not that ThuggerDaily caused trial outcomes, but that it likely contributed to the public narrative environment by amplifying attention, selecting frames, and concentrating fan/support discourse. For legal-media intelligence, this is a meaningful result: public legitimacy, reputational dynamics, and narrative momentum are not courtroom facts, but they are measurable features of high-profile legal events.
 
 \newpage
 \section{References}

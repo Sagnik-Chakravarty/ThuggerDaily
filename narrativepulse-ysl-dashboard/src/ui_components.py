@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 from .config import CAUSAL_CAVEAT
 from .database import database_available
 from .load_data import missing_processed_files
@@ -121,3 +122,27 @@ def render_data_warning(message):
 
 def render_methodology_note():
     st.caption("Methods are designed for aggregate, processed, public, sampled, or anonymized data. Interpret outputs as public narrative signals.")
+
+
+def render_engagement_denominator_flag(df, context: str = "This view"):
+    """
+    Show a lightweight transparency note about which engagement denominator is present.
+    """
+    if df is None or df.empty:
+        return
+    analytics = pd.to_numeric(df.get("analytics", pd.Series(index=df.index, dtype=float)), errors="coerce").fillna(0)
+    views = pd.to_numeric(df.get("views", pd.Series(index=df.index, dtype=float)), errors="coerce").fillna(0)
+    denom = pd.Series("none", index=df.index, dtype=object)
+    denom.loc[views > 0] = "views"
+    denom.loc[analytics > 0] = "analytics"
+    shares = denom.value_counts(normalize=True, dropna=False).to_dict()
+    a = shares.get("analytics", 0.0)
+    v = shares.get("views", 0.0)
+    n = shares.get("none", 0.0)
+    st.markdown(
+        f"<div class='np-note'><b>Engagement denominators vary by platform.</b> "
+        f"{context} uses <b>analytics</b> for {a:.0%} of rows, <b>views</b> for {v:.0%}, and has <b>no denominator</b> for {n:.0%}. "
+        "When no denominator is available, the dashboard preserves raw engagement counts (not a rate). "
+        "Cross-platform rate comparisons should be treated as approximate and platform-conditioned.</div>",
+        unsafe_allow_html=True,
+    )

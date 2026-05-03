@@ -18,6 +18,32 @@ def calculate_engagement_rate(df: pd.DataFrame) -> pd.Series:
     return np.where(denominator.fillna(0) > 0, total / denominator * 100, np.nan)
 
 
+def engagement_denominator_type(df: pd.DataFrame) -> pd.Series:
+    """
+    Classify which exposure denominator would be used for engagement rate.
+    This is used for UI/reporting transparency, not for changing calculations.
+    """
+    analytics = pd.to_numeric(df.get("analytics", pd.Series(index=df.index, dtype=float)), errors="coerce")
+    views = pd.to_numeric(df.get("views", pd.Series(index=df.index, dtype=float)), errors="coerce")
+    denom = pd.Series("none", index=df.index, dtype=object)
+    denom.loc[views.fillna(0) > 0] = "views"
+    denom.loc[analytics.fillna(0) > 0] = "analytics"
+    return denom
+
+
+def denominator_coverage_by_platform(df: pd.DataFrame) -> pd.DataFrame:
+    work = df.copy()
+    work["denominator_type"] = engagement_denominator_type(work)
+    out = (
+        work.groupby(["platform", "denominator_type"], dropna=False)
+        .size()
+        .reset_index(name="n_records")
+    )
+    total = out.groupby("platform")["n_records"].transform("sum").replace(0, np.nan)
+    out["share"] = out["n_records"] / total
+    return out.sort_values(["platform", "denominator_type"])
+
+
 def aggregate_engagement_by_platform(df: pd.DataFrame) -> pd.DataFrame:
     work = df.copy()
     work["total_engagement"] = calculate_total_engagement(work)
