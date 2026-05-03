@@ -19,3 +19,29 @@ narrativepulse-ysl-dashboard/reports/figures_png/
 *.out
 *.log
 *.toc
+
+# Ignore large data files and common binary data formats
+# Top-level data folders
+Data/
+Sentiment Analysis/
+
+# Common large file extensions
+*.csv
+*.csv.gz
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.parquet
+*.feather
+*.h5
+*.db
+*.sqlite
+
+# Virtual environments
+venv/
+.venv/
+
+# Keep local notebooks and exports out
+*.ipynb_checkpoints
+exported/
