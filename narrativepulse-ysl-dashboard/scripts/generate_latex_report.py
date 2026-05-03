@@ -1,21 +1,26 @@
 from __future__ import annotations
 
 from pathlib import Path
+import os
 import textwrap
 import numpy as np
 import pandas as pd
-
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data" / "processed"
 REPORTS = ROOT / "reports"
 FIG = REPORTS / "figures_png"
 TABLES = REPORTS / "tables"
-TEX_PATH = REPORTS / "narrativepulse_thuggerdaily_trial_report.tex"
+# Avoid overwriting the curated, edited manuscript in reports/.
+# This script's primary job is to generate report tables + figures.
+TEX_PATH = REPORTS / "_generated_narrativepulse_thuggerdaily_trial_report.tex"
+
+os.environ.setdefault("MPLCONFIGDIR", str(REPORTS / ".mplconfig"))
+os.environ.setdefault("XDG_CACHE_HOME", str(REPORTS / ".cache"))
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 
 def esc(value) -> str:
@@ -39,8 +44,8 @@ def esc(value) -> str:
 
 def savefig(name):
     path = FIG / name
-    plt.tight_layout()
-    plt.savefig(path, dpi=220, bbox_inches="tight")
+    # tight_layout is not reliable for multi-axis / gridspec figures; bbox_inches does most of the work.
+    plt.savefig(path, dpi=220, bbox_inches="tight", pad_inches=0.12)
     plt.close()
     return path
 
@@ -81,6 +86,8 @@ def pct(x):
 def main():
     FIG.mkdir(parents=True, exist_ok=True)
     TABLES.mkdir(parents=True, exist_ok=True)
+    (REPORTS / ".mplconfig").mkdir(parents=True, exist_ok=True)
+    (REPORTS / ".cache").mkdir(parents=True, exist_ok=True)
 
     posts = pd.read_csv(DATA / "posts_master.csv", parse_dates=["date"])
     td = pd.read_csv(DATA / "thuggerdaily_posts.csv", parse_dates=["date"])
@@ -138,15 +145,41 @@ def main():
     plt.legend()
     fig_sentiment = savefig("fig03_sentiment_by_entity.png")
 
-    # Figure 4: ThuggerDaily posting.
-    td_daily = td.groupby("date").agg(posts=("post_id", "count"), engagement=("total_engagement", "sum")).reset_index()
-    plt.figure(figsize=(11, 4.8))
-    plt.bar(td_daily["date"], td_daily["posts"], color="#0f766e", width=1.5)
+    # Figure 4: ThuggerDaily activity over time.
+    # IMPORTANT: the raw `date` field is timestamped; normalize to day before aggregating.
+    td_day = td.copy()
+    td_day["day"] = pd.to_datetime(td_day["date"], errors="coerce").dt.floor("D")
+    td_day = td_day.dropna(subset=["day"])
+    td_daily = td_day.groupby("day").size().rename("posts").sort_index().to_frame()
+    full_idx = pd.date_range(td_daily.index.min(), td_daily.index.max(), freq="D")
+    td_daily = td_daily.reindex(full_idx, fill_value=0)
+    td_daily.index.name = "day"
+    td_daily["cum_posts"] = td_daily["posts"].cumsum()
+    td_daily["posts_7d"] = td_daily["posts"].rolling(7, min_periods=1).mean()
+    td_daily["posts_28d"] = td_daily["posts"].rolling(28, min_periods=1).mean()
+
+    fig = plt.figure(figsize=(11, 5.6))
+    gs = fig.add_gridspec(2, 1, height_ratios=[1.25, 1.0], hspace=0.18)
+    ax_top = fig.add_subplot(gs[0, 0])
+    ax_bot = fig.add_subplot(gs[1, 0], sharex=ax_top)
+
+    # Top: cumulative posts (slope indicates intensity over time).
+    ax_top.plot(td_daily.index, td_daily["cum_posts"], color="#0f766e", linewidth=2.1)
+    ax_top.set_ylabel("Cumulative posts")
+    ax_top.set_title("ThuggerDaily Activity Over Time")
+
+    # Bottom: weekly activity view with rolling averages (cleaner than daily noise).
+    ax_bot.bar(td_daily.index, td_daily["posts"], color="#94a3b8", width=1.0, alpha=0.55, label="Posts/day")
+    ax_bot.plot(td_daily.index, td_daily["posts_7d"], color="#334155", linewidth=1.4, label="7-day avg")
+    ax_bot.plot(td_daily.index, td_daily["posts_28d"], color="#111827", linewidth=1.8, label="28-day avg")
+    ax_bot.set_ylabel("Posts/day")
+    ax_bot.set_xlabel("Date")
+    ax_bot.legend(loc="upper left", fontsize=8, ncol=3, frameon=False)
+
     for _, row in events[events["event_id"].isin(["lyrics_evidence", "opening_statements", "glanville_recused", "young_thug_plea", "trial_end"])].iterrows():
-        plt.axvline(row["date"], color="#64748b", linestyle="--", linewidth=0.8)
-    plt.title("ThuggerDaily Posting Volume Over the Trial Timeline")
-    plt.xlabel("Date")
-    plt.ylabel("Posts per day")
+        ax_top.axvline(row["date"], color="#cbd5e1", linestyle="--", linewidth=0.9)
+        ax_bot.axvline(row["date"], color="#cbd5e1", linestyle="--", linewidth=0.9)
+
     fig_td = savefig("fig04_thuggerdaily_volume.png")
 
     # Figure 5: event sentiment change.
@@ -206,6 +239,93 @@ def main():
     plt.xlabel("Aligned share of observed sentiment shift (%)")
     fig_attr = savefig("fig09_attribution_share.png")
 
+    # Figure 10: topic prevalence over time (monthly shares).
+    work = posts.dropna(subset=["date", "topic_label"]).copy()
+    work["month"] = work["date"].dt.to_period("M").dt.to_timestamp()
+    topic_month = work.groupby(["month", "topic_label"]).size().rename("n").reset_index()
+    topic_pivot = topic_month.pivot(index="month", columns="topic_label", values="n").fillna(0)
+    topic_share = topic_pivot.div(topic_pivot.sum(axis=1).replace(0, np.nan), axis=0).fillna(0)
+    topic_cols = [c for c in topic_share.columns if isinstance(c, str)]
+    topic_cols = sorted(topic_cols)
+    plt.figure(figsize=(11, 5.8))
+    colors = ["#1d4ed8", "#0f766e", "#7c3aed", "#ea580c", "#64748b", "#dc2626", "#16a34a"]
+    colors = (colors * ((len(topic_cols) // len(colors)) + 1))[: len(topic_cols)]
+    plt.stackplot(topic_share.index, [topic_share[c].values for c in topic_cols], labels=topic_cols, colors=colors, alpha=0.9)
+    for _, row in events[events["event_id"].isin(["indictment_arrests", "gunna_release", "opening_statements", "glanville_recused", "young_thug_plea"])].iterrows():
+        plt.axvline(row["date"], color="#94a3b8", linestyle="--", linewidth=0.8)
+    plt.title("Topic Prevalence Over Time (Monthly Share)")
+    plt.ylabel("Share of records")
+    plt.xlabel("Month")
+    plt.ylim(0, 1)
+    plt.legend(loc="upper left", bbox_to_anchor=(1.02, 1.0), fontsize=7, title="Topic")
+    fig_topic_timeline = savefig("fig10_topic_prevalence_over_time.png")
+
+    # Figure 11: topic mix by platform (shares).
+    plat = work.groupby(["platform", "topic_label"]).size().rename("n").reset_index()
+    plat_pivot = plat.pivot(index="platform", columns="topic_label", values="n").fillna(0)
+    plat_share = plat_pivot.div(plat_pivot.sum(axis=1).replace(0, np.nan), axis=0).fillna(0)
+    # Sort platforms by total volume; keep topic columns stable.
+    platform_order = posts["platform"].value_counts().index.tolist()
+    plat_share = plat_share.reindex(platform_order).dropna(how="all")
+    topic_order = [c for c in topic_cols if c in plat_share.columns]
+    mat = plat_share[topic_order].values
+    plt.figure(figsize=(10.6, 5.6))
+    im = plt.imshow(mat, aspect="auto", interpolation="nearest", cmap="Blues", vmin=0, vmax=max(0.01, float(np.nanmax(mat))))
+    plt.title("Topic Mix by Platform (Share of Records)")
+    plt.yticks(np.arange(len(plat_share.index)), plat_share.index, fontsize=7)
+    plt.xticks(np.arange(len(topic_order)), [t[:18] + ("..." if len(t) > 18 else "") for t in topic_order], rotation=35, ha="right", fontsize=7)
+    cbar = plt.colorbar(im, fraction=0.03, pad=0.02)
+    cbar.set_label("Share", rotation=90)
+    fig_topic_platform = savefig("fig11_topic_mix_by_platform.png")
+
+    # Figure 12: confounding DAG (conceptual).
+    try:
+        import networkx as nx
+
+        G = nx.DiGraph()
+        nodes = {
+            "E": "Courtroom / Trial Events",
+            "R": "Music Releases\nand Artist News",
+            "M": "Mainstream Media\nCoverage",
+            "A": "Platform Algorithms\n& Amplification",
+            "T": "ThuggerDaily Posts\n(Exposure)",
+            "Y": "Public Discourse Outcomes\n(volume, sentiment, topics, engagement)",
+        }
+        for k, v in nodes.items():
+            G.add_node(k, label=v)
+        edges = [
+            ("E", "M"),
+            ("E", "T"),
+            ("E", "Y"),
+            ("R", "M"),
+            ("R", "T"),
+            ("R", "Y"),
+            ("M", "T"),
+            ("M", "Y"),
+            ("A", "T"),
+            ("A", "Y"),
+            ("T", "Y"),
+        ]
+        G.add_edges_from(edges)
+        pos = {
+            "E": (0.05, 0.75),
+            "R": (0.05, 0.25),
+            "M": (0.38, 0.50),
+            "A": (0.38, 0.15),
+            "T": (0.68, 0.55),
+            "Y": (0.93, 0.50),
+        }
+        plt.figure(figsize=(11.2, 4.8))
+        nx.draw_networkx_edges(G, pos, arrows=True, arrowstyle="-|>", arrowsize=14, width=1.3, edge_color="#334155")
+        nx.draw_networkx_nodes(G, pos, node_size=2600, node_color="#e2e8f0", edgecolors="#334155", linewidths=1.2)
+        labels = {k: nodes[k] for k in nodes}
+        nx.draw_networkx_labels(G, pos, labels=labels, font_size=8)
+        plt.title("Conceptual Causal DAG: Confounding Between Events, Releases, Media, and Exposure")
+        plt.axis("off")
+        fig_dag = savefig("fig12_confounding_dag.png")
+    except Exception:
+        fig_dag = None
+
     top_event = young.sort_values("td_post_posts", ascending=False).iloc[0]
     plea = young[young["event_name"].str.contains("pleads guilty", case=False, na=False)].iloc[0]
     recusal = young[young["event_name"].str.contains("Glanville", case=False, na=False)].iloc[0]
@@ -221,7 +341,7 @@ def main():
         ),
         "events": latex_table(
             events,
-            ["date", "event_name", "entity", "event_type", "source"],
+            ["date", "event_name", "entity", "event_type"],
             "Key trial and media events used in the event-window design.",
             "tab:events",
             max_rows=20,
