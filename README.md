@@ -1,139 +1,71 @@
-# NarrativePulse: YSL Trial Public Narrative Analytics
+# Hi, I'm Sagnik Chakravarty
 
-NarrativePulse is a Streamlit analytics dashboard and reporting workflow for measuring public discourse around the YSL RICO trial. The project studies how public sentiment, engagement, volume, and topic prevalence shifted around key trial events, with a focused analysis of whether ThuggerDaily's X/Twitter activity was temporally aligned with downstream public narrative changes.
+I am a graduate student in Survey Methodology and Data Science at the University of Maryland, College Park. My work sits at the intersection of survey methodology, machine learning, natural language processing, computational social science, and public discourse measurement.
 
-This is a public narrative analytics and legal-media intelligence project. It does **not** claim to determine legal truth, guilt, innocence, or definitive causal responsibility. Event-study, lag, and attribution outputs should be read as observational influence signals.
+I build reproducible pipelines and dashboards that turn messy social, survey, and administrative data into interpretable research outputs.
 
-## Quick Links
+## Current Focus
+
+- LLM-assisted measurement of public discourse, metaphor, framing, and stance
+- Survey methodology, sampling, response behavior, and total survey error
+- Computational social science projects using Reddit, news, social media, and administrative data
+- Applied machine learning workflows for research-grade analysis and dashboard deployment
+
+## Featured Projects
+
+### [FrameScope](https://github.com/Sagnik-Chakravarty/FrameScope)
+LLM-assisted metaphor and framing analysis of AI discourse across Reddit and news data.
+
+- Live dashboard: https://framescope.streamlit.app/
+- Focus: AI metaphors, stance classification, public narrative tracking
+- Methods: NLP, LLM prompting, sentence-level classification, Streamlit, SQLite, Python
+
+### [ThuggerDaily / NarrativePulse](https://github.com/Sagnik-Chakravarty/ThuggerDaily)
+Public narrative analytics project studying discourse around the YSL RICO trial and ThuggerDaily activity.
 
 - Live dashboard: https://narrativepulse.streamlit.app/
-- GitHub repository: https://github.com/Sagnik-Chakravarty/ThuggerDaily
-- Report PDF (local path): `narrativepulse-ysl-dashboard/reports/narrativepulse_thuggerdaily_trial_report.pdf`
+- Focus: public attention, sentiment, event windows, lagged narrative signals
+- Methods: social/media data fusion, event-study logic, topic modeling, Streamlit, Neon/Postgres, Python
 
-## Live App Entry Point
+### [Immigration Narrative vs Enforcement](https://github.com/Sagnik-Chakravarty/Immigration-Narrative-Vs-Enforcement)
+A Total Survey Error-inspired comparison of immigration media narratives against administrative enforcement benchmarks.
 
-The deployable app lives in:
+- Focus: GDELT news tone, Reddit discourse, CBP encounters, ICE administrative arrests
+- Methods: time-series comparison, lead-lag analysis, standardized indicators, public narrative measurement
 
-```text
-narrativepulse-ysl-dashboard/app.py
-```
+### [ASHA Survey Response Analysis](https://github.com/Sagnik-Chakravarty/ASHA)
+Applied survey design and response behavior analysis using ASHA school SLP survey data.
 
-For Streamlit Community Cloud, use this as the main file path:
+- Focus: response timing, mode effects, postcard treatment policies, bootstrap inference
+- Methods: chi-square tests, logistic regression, difference-in-differences, policy-level estimands
 
-```text
-narrativepulse-ysl-dashboard/app.py
-```
+### [Personal Academic Website](https://github.com/Sagnik-Chakravarty/sagnik-chakravarty.github.io)
+Portfolio website for research projects, posters, dashboards, publications, and SagnikGPT.
 
-The production data backend is Neon Postgres. Add the database connection string in Streamlit secrets as either:
+- Website: https://sagnik-chakravarty.github.io/
+- Focus: academic portfolio, project documentation, embedded research assistant, public-facing demos
 
-```toml
-NEON_DB = "postgresql://..."
-```
+## Technical Toolkit
 
-or:
+**Languages:** Python, R, SQL, JavaScript, HTML/CSS  
+**Data and ML:** pandas, NumPy, scikit-learn, spaCy, ggplot2, tidyverse, survey methods, LLM prompting  
+**Dashboards and Apps:** Streamlit, Plotly, FastAPI, GitHub Pages  
+**Databases and Storage:** SQLite, Postgres/Neon, ChromaDB  
+**Research Workflows:** Quarto, LaTeX, reproducible notebooks, API-based data collection, statistical reporting
 
-```toml
-DATABASE_URL = "postgresql://..."
-```
+## Research Interests
 
-Do not commit `.env`.
+- Survey methodology and data quality
+- LLMs for measurement and annotation
+- Public opinion and public discourse analytics
+- Computational social science
+- Immigration, AI, legal-media narratives, and political communication
+- Multimodal and geospatial data for survey-adjacent research
 
-## Current Processed Dataset
+## Links
 
-The dashboard database currently contains:
-
-- 165,565 unified public-discourse records
-- 773 ThuggerDaily records
-- May 2022 through December 2024 coverage
-- Entities: Young Thug, Gunna, YFN Lucci
-- Platforms: YouTube, X/Twitter, magazines, local news, newspapers, Spotify, Billboard, Instagram
-
-The app loads data in this order:
-
-1. Neon/Postgres when a database URL is configured and reachable
-2. local processed CSVs if present
-3. generated demo data as a fallback
-
-## Results (At a Glance)
-
-These results are phrased conservatively and should be read as *observational narrative signals*, not definitive causal attribution.
-
-**KPIs**
-
-| KPI | Value |
-|---|---:|
-| Unified public-discourse records | 165,565 |
-| Platforms covered | 8 |
-| Entities tracked | 3 |
-| Topic groups (leveled) | 7 |
-| Coverage window (public corpus) | 2022-05-01 to 2024-12-29 |
-| ThuggerDaily posts (exposure stream) | 773 |
-| ThuggerDaily coverage window | 2023-01-01 to 2024-12-07 |
-| Key trial events table (dashboard default) | 7 |
-
-**Headline findings**
-
-- Public discourse shifts are most pronounced around major legal moments (attention/volume and engagement move more consistently than sentiment).
-- ThuggerDaily activity is frequently present in the same short post-event windows where cross-platform attention is moving; the most defensible interpretation is *amplification/framing during already-salient events*.
-- Full-period lag correlations are small, suggesting any influence is episodic and event-conditioned rather than a stable long-run predictor.
-- Topic shifts provide a clearer interpretation layer than sentiment alone (e.g., resolution moments tend to rebalance discourse toward music/fandom framing vs procedural/legal language).
-
-## Local Setup
-
-```bash
-cd narrativepulse-ysl-dashboard
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-streamlit run app.py
-```
-
-## Rebuilding Data
-
-The cleaned source data lives under `Data/Cleaned Data/`. To rebuild dashboard-ready CSVs:
-
-```bash
-cd narrativepulse-ysl-dashboard
-python scripts/build_processed_data.py
-```
-
-To upload those processed files to Neon:
-
-```bash
-python scripts/upload_processed_to_neon.py
-```
-
-## Repository Map
-
-- `Codes/`: original collection, scraping, cleaning, and analysis notebooks/scripts
-- `Data/`: raw and cleaned project source data
-- `Sentiment Analysis/`: earlier sentiment-analysis outputs and Quarto artifacts
-- `Topic modeling/`: topic modeling and diagnostic artifacts
-- `narrativepulse-ysl-dashboard/`: deployable Streamlit app, analytics modules, tests, notebooks, report, and database scripts
-- `Young Thug Time Line.rtf`: local trial timeline used alongside web-verified dates
-
-## Report Artifacts
-
-The LaTeX/PDF report and report figures are in:
-
-```text
-narrativepulse-ysl-dashboard/reports/
-```
-
-The report-generation notebook is:
-
-```text
-narrativepulse-ysl-dashboard/notebooks/thuggerdaily_trial_effect_report.ipynb
-```
-
-## Privacy and Security
-
-Do not commit:
-
-- `.env`
-- API keys or database credentials
-- confidential client data
-- private legal records
-- raw scraped data containing sensitive user information
-
-The public app should use Neon secrets and processed/anonymized data only.
+- Website: https://sagnik-chakravarty.github.io/
+- FrameScope: https://framescope.streamlit.app/
+- NarrativePulse: https://narrativepulse.streamlit.app/
+- GitHub: https://github.com/Sagnik-Chakravarty
+- Email: sagnikch@umd.edu
