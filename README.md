@@ -1,71 +1,130 @@
-# Hi, I'm Sagnik Chakravarty
+# ThuggerDaily / NarrativePulse
 
-I am a graduate student in Survey Methodology and Data Science at the University of Maryland, College Park. My work sits at the intersection of survey methodology, machine learning, natural language processing, computational social science, and public discourse measurement.
+ThuggerDaily / NarrativePulse is a public narrative analytics project focused on discourse around the YSL RICO trial, Young Thug, Gunna, YFN Lucci, and ThuggerDaily activity. The repository combines original data collection and cleaning notebooks, topic-modeling work, statistical analysis, and a deployable Streamlit dashboard.
 
-I build reproducible pipelines and dashboards that turn messy social, survey, and administrative data into interpretable research outputs.
+The project is framed as legal-media and public discourse measurement. It estimates temporal alignment, sentiment shifts, engagement patterns, topic prevalence, and event-linked narrative signals. It does not claim to prove legal causality, court impact, or definitive public opinion change.
 
-## Current Focus
+## Main Dashboard
 
-- LLM-assisted measurement of public discourse, metaphor, framing, and stance
-- Survey methodology, sampling, response behavior, and total survey error
-- Computational social science projects using Reddit, news, social media, and administrative data
-- Applied machine learning workflows for research-grade analysis and dashboard deployment
+The Streamlit app lives in [`narrativepulse-ysl-dashboard/`](narrativepulse-ysl-dashboard/).
 
-## Featured Projects
+Core dashboard features include:
 
-### [FrameScope](https://github.com/Sagnik-Chakravarty/FrameScope)
-LLM-assisted metaphor and framing analysis of AI discourse across Reddit and news data.
+- Executive KPIs and cross-platform summary
+- Data source and coverage diagnostics
+- Multi-platform sentiment trends
+- ThuggerDaily influence-signal analysis
+- Topic modeling and topic-level interpretation
+- Statistical inference, including pre/post tests, effect sizes, lag correlations, and regression summaries
+- Causal-style event study views with attribution caveats
+- Timeline report generation with local Ollama support and a template fallback
+- Methodology and privacy documentation
 
-- Live dashboard: https://framescope.streamlit.app/
-- Focus: AI metaphors, stance classification, public narrative tracking
-- Methods: NLP, LLM prompting, sentence-level classification, Streamlit, SQLite, Python
+## Repository Structure
 
-### [ThuggerDaily / NarrativePulse](https://github.com/Sagnik-Chakravarty/ThuggerDaily)
-Public narrative analytics project studying discourse around the YSL RICO trial and ThuggerDaily activity.
+```text
+.
+|-- Codes/
+|   |-- Data Collection/
+|   `-- Data Cleaning/
+|-- Topic modeling/
+|-- narrativepulse-ysl-dashboard/
+|   |-- app.py
+|   |-- pages/
+|   |-- src/
+|   |-- scripts/
+|   |-- data/
+|   |-- notebooks/
+|   |-- reports/
+|   `-- tests/
+|-- requirements.txt
+`-- README.md
+```
 
-- Live dashboard: https://narrativepulse.streamlit.app/
-- Focus: public attention, sentiment, event windows, lagged narrative signals
-- Methods: social/media data fusion, event-study logic, topic modeling, Streamlit, Neon/Postgres, Python
+## Quick Start
 
-### [Immigration Narrative vs Enforcement](https://github.com/Sagnik-Chakravarty/Immigration-Narrative-Vs-Enforcement)
-A Total Survey Error-inspired comparison of immigration media narratives against administrative enforcement benchmarks.
+From the repository root:
 
-- Focus: GDELT news tone, Reddit discourse, CBP encounters, ICE administrative arrests
-- Methods: time-series comparison, lead-lag analysis, standardized indicators, public narrative measurement
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cd narrativepulse-ysl-dashboard
+streamlit run app.py
+```
 
-### [ASHA Survey Response Analysis](https://github.com/Sagnik-Chakravarty/ASHA)
-Applied survey design and response behavior analysis using ASHA school SLP survey data.
+The dashboard loads data in this order:
 
-- Focus: response timing, mode effects, postcard treatment policies, bootstrap inference
-- Methods: chi-square tests, logistic regression, difference-in-differences, policy-level estimands
+1. Neon/Postgres, if `DATABASE_URL` or `NEON_DB` is configured.
+2. Local processed CSV files in `narrativepulse-ysl-dashboard/data/processed/`.
+3. Generated demo data as a fallback.
 
-### [Personal Academic Website](https://github.com/Sagnik-Chakravarty/sagnik-chakravarty.github.io)
-Portfolio website for research projects, posters, dashboards, publications, and SagnikGPT.
+## Data Pipeline
 
-- Website: https://sagnik-chakravarty.github.io/
-- Focus: academic portfolio, project documentation, embedded research assistant, public-facing demos
+Original collection and cleaning work is stored in [`Codes/`](Codes/). Topic modeling experiments and visual diagnostics are stored in [`Topic modeling/`](Topic%20modeling/).
 
-## Technical Toolkit
+The dashboard expects standardized processed outputs such as:
 
-**Languages:** Python, R, SQL, JavaScript, HTML/CSS  
-**Data and ML:** pandas, NumPy, scikit-learn, spaCy, ggplot2, tidyverse, survey methods, LLM prompting  
-**Dashboards and Apps:** Streamlit, Plotly, FastAPI, GitHub Pages  
-**Databases and Storage:** SQLite, Postgres/Neon, ChromaDB  
-**Research Workflows:** Quarto, LaTeX, reproducible notebooks, API-based data collection, statistical reporting
+- `posts_master.csv`
+- `thuggerdaily_posts.csv`
+- `trial_events.csv`
+- `topic_assignments.csv`
+- `entity_timeseries.csv`
+- `platform_summary.csv`
 
-## Research Interests
+To rebuild processed dashboard data:
 
-- Survey methodology and data quality
-- LLMs for measurement and annotation
-- Public opinion and public discourse analytics
-- Computational social science
-- Immigration, AI, legal-media narratives, and political communication
-- Multimodal and geospatial data for survey-adjacent research
+```bash
+cd narrativepulse-ysl-dashboard
+python scripts/build_processed_data.py
+```
 
-## Links
+To upload processed data to Neon/Postgres:
 
-- Website: https://sagnik-chakravarty.github.io/
-- FrameScope: https://framescope.streamlit.app/
-- NarrativePulse: https://narrativepulse.streamlit.app/
-- GitHub: https://github.com/Sagnik-Chakravarty
-- Email: sagnikch@umd.edu
+```bash
+cd narrativepulse-ysl-dashboard
+python scripts/upload_processed_to_neon.py
+```
+
+Large raw and processed data files should not be committed.
+
+## Deployment
+
+For Streamlit Community Cloud, use:
+
+```text
+Main file path: narrativepulse-ysl-dashboard/app.py
+```
+
+Configure one of the following secrets:
+
+```toml
+DATABASE_URL = "postgresql://..."
+```
+
+or:
+
+```toml
+NEON_DB = "postgresql://..."
+```
+
+Detailed deployment notes are in [`narrativepulse-ysl-dashboard/DEPLOYMENT.md`](narrativepulse-ysl-dashboard/DEPLOYMENT.md).
+
+## Tests
+
+Dashboard tests are under [`narrativepulse-ysl-dashboard/tests/`](narrativepulse-ysl-dashboard/tests/). Run them from the dashboard directory:
+
+```bash
+cd narrativepulse-ysl-dashboard
+pytest
+```
+
+## Methods
+
+The project uses Python data engineering, cross-platform schema standardization, sentiment scoring, engagement normalization, topic modeling, event-window analysis, exploratory lag correlations, and observational causal-inference-style summaries.
+
+All findings should be interpreted as descriptive or temporal-association evidence unless supported by a specific statistical design and clearly stated assumptions.
+
+## Privacy And Data Handling
+
+This repository is intended for portfolio and research demonstration using public or processed data. Do not commit credentials, private legal records, confidential source material, raw scraped data containing sensitive fields, or local `.env` files.
